@@ -27,39 +27,36 @@ const THEME = {
 };
 
 const Navigation = () => {
-	const [user, setUser] = React.useState(false)
-	const [loading, setLoading] = React.useState(true)
-  
+	const [ user, setUser ] = React.useState(false);
+	const [ loading, setLoading ] = React.useState(true);
+
 	function userStateChanged(user) {
-	  setUser(user)
-	  setLoading(false)
+		setUser(user);
+		setLoading(false);
 	}
-  
+
 	React.useEffect(() => {
-	  const subscribe = firebase.auth().onAuthStateChanged(userStateChanged)
-	  return subscribe
-	}, [])
+		const subscribe = firebase.auth().onAuthStateChanged(userStateChanged);
+		return subscribe;
+	}, []);
 
 	return (
 		<NavigationContainer theme={THEME}>
 			{user ? (
-			<>
-				<BottomTabNavigator />	
-				</>
-			): (
+				<BottomTabNavigator />
+			) : (
 				<stack.Navigator>
-				<stack.Screen name="Login" component={Login} options={{headerShown: false}}/>
-				<stack.Screen name="SignUp" component={SignUp} options={{headerShown: false}}/>
+					<stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+					<stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
 				</stack.Navigator>
-			)
-		}
+			)}
 		</NavigationContainer>
 	);
 };
 
 function BottomTabNavigator() {
 	return (
-	<Tab.Navigator initialRouteName="Home" screenOptions={{ tabBarActiveTintColor: colors.primary }}>
+		<Tab.Navigator initialRouteName="Home" screenOptions={{ tabBarActiveTintColor: colors.primary }}>
 			<Tab.Screen
 				name="Home"
 				component={HomeStackScreen}
@@ -109,7 +106,7 @@ function BottomTabNavigator() {
 				}}
 			/>
 		</Tab.Navigator>
-	)
+	);
 }
 
 function TabBarIcons({ fontFamily, color, name }) {
