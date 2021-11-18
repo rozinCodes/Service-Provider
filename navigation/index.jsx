@@ -1,6 +1,7 @@
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
+import LottieView from 'lottie-react-native';
 import { Ionicons, MaterialCommunityIcons, Fontisto } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { firebase } from '../components/configuration/config';
@@ -14,6 +15,7 @@ import Earphone from '../screens/earphone';
 import Headphone from '../screens/headphone';
 import ProductDetails from '../screens/product-details';
 import Checkout from '../screens/checkout';
+import { Dimensions } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 const stack = createNativeStackNavigator();
@@ -39,6 +41,17 @@ const Navigation = () => {
 		const subscribe = firebase.auth().onAuthStateChanged(userStateChanged);
 		return subscribe;
 	}, []);
+
+	if (loading) {
+		return (
+			<LottieView
+				style={{flex: 1, width: Dimensions.get('window').height/4 }}
+				resizeMode='contain'
+				source={require('../assets/loading.json')}
+				autoPlay={true}
+			/>
+		);
+	}
 
 	return (
 		<NavigationContainer theme={THEME}>
