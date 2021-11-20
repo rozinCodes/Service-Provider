@@ -3,6 +3,7 @@ import React from 'react';
 import { Image, ScrollView, Text } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import Button from '../components/button';
 import { firebase } from '../components/configuration/config';
 import { Header } from '../components/header';
@@ -12,56 +13,13 @@ import * as Yup from 'yup';
 import { colors } from '../presets';
 
 const Login = ({ navigation }) => {
-	// const [ email, setEmail ] = React.useState('');
-	// const [ password, setPassword ] = React.useState('');
 	const [ loading, setLoading ] = React.useState(false);
-
-	// user login
-	const loginUser = () => {
-		setLoading(true);
-		// check if fields meet the requirement
-		if ((email != '') & (password != '')) {
-			if (password.toString().length >= 8) {
-				firebase
-					.auth()
-					.signInWithEmailAndPassword(email.trim(), password.trim())
-					.then(() => {
-						setLoading(false);
-						navigation.navigate('Profile');
-					})
-					.catch((err) => {
-						showMessage({
-							message: 'Error',
-							description: err.message,
-							type: 'danger'
-						});
-						setLoading(false);
-					});
-			} else {
-				showMessage({
-					message: 'password must be at least 8 characters long',
-					type: 'warning'
-				});
-			}
-		} else {
-			showMessage({
-				message: 'please check the infromation you provided',
-				type: 'warning'
-			});
-		}
-		setLoading(false);
-	};
 
 	const schema = Yup.object().shape({
 		email: Yup.string().trim().required('Please enter your email').email('Please enter a valid email'),
 		password: Yup.string()
 			.required('Please Enter your password')
 			.matches(/^(?=.{8,})/,'Must Contain 8 Characters')
-			.matches(/^(?=.*[0-9])/, 'password must contain at least one number')
-			.matches(/^(?=.*[a-z])/, 'password must contain at least one lowercase letter')
-			.matches(/^(?=.*[A-Z])/, 'password must contain one upper case letter')
-			.matches(/^(?=.*[!@#\$%\^&\*])/, 'password must be contain at least one special character')
-		
 	});
 
 	const formik = useFormik({
@@ -93,7 +51,9 @@ const Login = ({ navigation }) => {
 
 	return (
 		<SafeAreaView style={{ flexDirection: 'column', marginHorizontal: 20 }}>
-			<ScrollView showsVerticalScrollIndicator={false}>
+			<KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
+
+			{/* <ScrollView showsVerticalScrollIndicator={false}> */}
 				<Header title="Login" />
 				<Image
 					style={{ height: 250, width: 350, alignSelf: 'center', marginBottom: 30 }}
@@ -127,8 +87,8 @@ const Login = ({ navigation }) => {
 				{formik.errors.password && formik.touched.password &&
 					<Text style={{ color: '#D16969', marginTop: 8 }}>{formik.errors.password}</Text>
 				}
-				<Text style = {{color: colors.grey}}>
-					* Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character
+				<Text style = {{color: colors.grey, marginTop: 12, fontSize: 12}}>
+					* Must Contain at least 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character
 				</Text>
 				{loading ? (
 					<LottieView
@@ -137,7 +97,8 @@ const Login = ({ navigation }) => {
 						autoPlay={true}
 					/>
 				) : (
-					<Button onPress={formik.handleSubmit} title="Submit" />
+					<Button disabled={!(formik.isValid && formik.dirty)}
+					onPress={formik.handleSubmit} title="Submit" />
 				)}
 				<Text style={{ alignSelf: 'center', marginVertical: 10 }}>
 					Don't have an account?{' '}
@@ -146,7 +107,7 @@ const Login = ({ navigation }) => {
 						Sign up
 					</Text>
 				</Text>
-			</ScrollView>
+			</KeyboardAwareScrollView>
 		</SafeAreaView>
 	);
 };

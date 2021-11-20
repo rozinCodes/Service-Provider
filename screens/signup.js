@@ -8,25 +8,44 @@ import { firebase } from '../components/configuration/config';
 import { Header } from '../components/header';
 import Input from '../components/input';
 import RadioInput from '../components/radioInput';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { colors } from '../presets';
 
 const SignUp = () => {
 	const OPTIONS = [ 'Male', 'Female', 'Non-binary' ];
 
-	const [ email, setEmail ] = React.useState('');
-	const [ password, setPassword ] = React.useState('');
-	const [ confirm, setConfirm ] = React.useState('');
 	const [ gender, setGender ] = React.useState(null);
 	const [ loading, setLoading ] = React.useState(false);
 
-
-	// user signup
-	const signUpUser = () => {
-		setLoading(true);
-		if (email != '' && password.toString().length >= 8 &&  gender != null) {
-			if(password == confirm) {
+	const schema = Yup.object().shape({
+		email: Yup.string().trim().required('Please enter your email').email('Please enter a valid email'),
+		password: Yup.string()
+			.required('Please Enter your password')
+			.matches(/^(?=.{8,})/, 'Must Contain 8 Characters')
+			.matches(/^(?=.*[0-9])/, 'password must contain at least one number')
+			.matches(/^(?=.*[a-z])/, 'password must contain at least one lowercase letter')
+			.matches(/^(?=.*[A-Z])/, 'password must contain one upper case letter')
+			.matches(/^(?=.*[!@#\$%\^&\*])/, 'password must be contain at least one special character'),
+		confirm: Yup.string()
+			.oneOf([ Yup.ref('password'), null ], 'Passwords do not match')
+			.required('Please confirm your password')
+	});
+	const formik = useFormik({
+		initialValues: {
+			email: '',
+			password: '',
+			confirm: ''
+		},
+		validationSchema: schema,
+		onSubmit: (values) => {
+			const email = values.email.trim();
+			const password = values.password.trim();
+			setLoading(true);
 			firebase
 				.auth()
-				.createUserWithEmailAndPassword(email.trim(), password.trim())
+				.createUserWithEmailAndPassword(email, password)
 				.then((response) => {
 					const uid = response.user.uid;
 
@@ -48,26 +67,13 @@ const SignUp = () => {
 					});
 					setLoading(false);
 				});
-			}
-			else {
-				showMessage ({
-					message: "passwords don't match",
-					type: 'warning',
-				})
-			}
-		} else {
-			showMessage({
-				message: 'Please check the information provided',
-				type: 'warning'
-			});
+			setLoading(false);
 		}
-		setLoading(false);
-	};
+	});
 
 	return (
 		<SafeAreaView>
-			<ScrollView
-			showsVerticalScrollIndicator={false}>
+			<KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
 				<Header backButton={true} title="Sign Up" />
 				<View
 					style={{
@@ -79,23 +85,53 @@ const SignUp = () => {
 				>
 					<Input
 						textTitle="Email"
+						placeholder="Enter your email"
+						textTitleColor={formik.errors.email && formik.touched.email && '#D16969'}
+						borderColor={formik.errors.email && formik.touched.email && '#D16969'}
+						onchangeText={formik.handleChange('email')}
 						customStyle={{ borderBottomWidth: 0 }}
-						onchangeText={(text) => setEmail(text)}
+						onBlur={formik.handleBlur('email')}
 					/>
+					{formik.errors.email &&
+					formik.touched.email && (
+						<Text style={{ color: '#D16969', marginTop: 8 }}>{formik.errors.email}</Text>
+					)}
 					<Input
+						placeholder="Enter your password"
 						textTitle="Password"
-						optionalText="At least 8 characters"
-						customStyle={{ borderBottomWidth: 0 }}
-						onchangeText={(text) => setPassword(text)}
+						textTitleColor={formik.errors.password && formik.touched.password && '#D16969'}
+						borderColor={formik.errors.password && formik.touched.password && '#D16969'}
+						onchangeText={formik.handleChange('password')}
+						customStyle={{
+							borderBottomWidth: 0
+						}}
 						secureInput
+						onBlur={formik.handleBlur('password')}
 					/>
+					{formik.errors.password &&
+					formik.touched.password && (
+						<Text style={{ color: '#D16969', marginTop: 8 }}>{formik.errors.password}</Text>
+					)}
+					<Text style={{ color: colors.grey, marginTop: 12, fontSize: 12 }}>
+						* Must Contain at least 8 Characters, One Uppercase, One Lowercase, One Number and One Special
+						Case Character
+					</Text>
 					<Input
+						placeholder="Confirm your password"
 						textTitle="Confirm password"
-						optionalText="Must match"
-						customStyle={{ borderBottomWidth: 0 }}
-						onchangeText={(text) => setConfirm(text)}
+						textTitleColor={formik.errors.confirm && formik.touched.confirm && '#D16969'}
+						borderColor={formik.errors.confirm && formik.touched.confirm && '#D16969'}
+						onchangeText={formik.handleChange('confirm')}
+						customStyle={{
+							borderBottomWidth: 0
+						}}
 						secureInput
+						onBlur={formik.handleBlur('confirm')}
 					/>
+					{formik.errors.confirm &&
+					formik.touched.confirm && (
+						<Text style={{ color: '#D16969', marginTop: 8 }}>{formik.errors.confirm}</Text>
+					)}
 				</View>
 
 				{/* mapping gender values */}
@@ -109,7 +145,7 @@ const SignUp = () => {
 						autoPlay={true}
 					/>
 				) : (
-					<Button onPress={signUpUser} title="Submit" />
+					<Button onPress={formik.handleSubmit} title="Submit" />
 				)}
 
 				<Text style={{ alignSelf: 'center', fontSize: 12 }}>
@@ -117,7 +153,7 @@ const SignUp = () => {
 					<Text> and </Text>
 					<Text style={{ color: 'dodgerblue' }}> Privacy policy</Text>
 				</Text>
-			</ScrollView>
+			</KeyboardAwareScrollView>
 		</SafeAreaView>
 	);
 };
