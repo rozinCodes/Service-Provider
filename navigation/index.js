@@ -16,6 +16,10 @@ import Headphone from '../screens/headphone';
 import ProductDetails from '../screens/product-details';
 import Checkout from '../screens/checkout';
 import { Dimensions } from 'react-native';
+import Phone from '../screens/phone';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Profile from '../screens/profile';
+
 
 const Tab = createBottomTabNavigator();
 const stack = createNativeStackNavigator();
@@ -59,8 +63,10 @@ const Navigation = () => {
 				<BottomTabNavigator />
 			) : (
 				<stack.Navigator>
+					{/* <stack.Screen name="Phone" component={Phone} options={{ headerShown: false }} /> */}
 					<stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
 					<stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
+					<stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
 				</stack.Navigator>
 			)}
 		</NavigationContainer>

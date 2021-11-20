@@ -66,29 +66,31 @@ const SignUp = () => {
 
 	return (
 		<SafeAreaView>
-			<ScrollView>
+			<ScrollView
+			showsVerticalScrollIndicator={false}>
 				<Header backButton={true} title="Sign Up" />
 				<View
 					style={{
 						marginTop: 30,
 						justifyContent: 'center',
-						marginBottom: 20
+						marginBottom: 20,
+						marginHorizontal: 20
 					}}
 				>
 					<Input
-						textValue="Email"
+						textTitle="Email"
 						customStyle={{ borderBottomWidth: 0 }}
 						onchangeText={(text) => setEmail(text)}
 					/>
 					<Input
-						textValue="Password"
+						textTitle="Password"
 						optionalText="At least 8 characters"
 						customStyle={{ borderBottomWidth: 0 }}
 						onchangeText={(text) => setPassword(text)}
 						secureInput
 					/>
 					<Input
-						textValue="Confirm password"
+						textTitle="Confirm password"
 						optionalText="Must match"
 						customStyle={{ borderBottomWidth: 0 }}
 						onchangeText={(text) => setConfirm(text)}
@@ -110,7 +112,7 @@ const SignUp = () => {
 					<Button onPress={signUpUser} title="Submit" />
 				)}
 
-				<Text style={{ alignSelf: 'center' }}>
+				<Text style={{ alignSelf: 'center', fontSize: 12 }}>
 					By continuing you accept the <Text style={{ color: 'dodgerblue' }}> Terms of use</Text>
 					<Text> and </Text>
 					<Text style={{ color: 'dodgerblue' }}> Privacy policy</Text>

@@ -4,8 +4,11 @@ import React from 'react';
 import { Dimensions, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Banner from '../components/banner';
+import Button from '../components/button';
 import { spacing } from '../presets';
 import { colors } from '../presets/colors';
+import { firebase } from '../components/configuration/config'
+
 
 const Home = () => {
 	return (
@@ -30,12 +33,13 @@ const Home = () => {
 							music enthusiast.
 						</Text>
 					</View>
-					<LottieView
+					<Button title = "SignOut" onPress = {() => {firebase.auth().signOut()}}/>
+					{/* <LottieView
 						style={{ flex: 1, width: Dimensions.get('window').height / 4, backgroundColor: colors.black }}
 						resizeMode="contain"
 						source={require('../assets/arrow-down.json')}
 						autoPlay={true}
-					/>
+					/> */}
 				</View>
 			</ScrollView>
 		</SafeAreaView>
