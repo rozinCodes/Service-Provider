@@ -15,7 +15,7 @@ import Earphone from '../screens/earphone';
 import Headphone from '../screens/headphone';
 import ProductDetails from '../screens/product-details';
 import Checkout from '../screens/checkout';
-import { Dimensions } from 'react-native';
+import { Dimensions, LogBox } from 'react-native';
 import Phone from '../screens/phone';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Profile from '../screens/profile';
@@ -31,6 +31,7 @@ const THEME = {
 		background: colors.white
 	}
 };
+LogBox.ignoreLogs(["Setting a timer"])
 
 const Navigation = () => {
 	const [ user, setUser ] = React.useState(false);
@@ -80,7 +81,7 @@ function BottomTabNavigator() {
 				name="Home"
 				component={HomeStackScreen}
 				options={{
-					headerShown: false,
+					headerTitleAlign: 'center',
 					tabBarIcon: ({ color, focused }) => (
 						<TabBarIcons fontFamily="Ionicons" name={focused ? 'home' : 'home-outline'} color={color} />
 					)

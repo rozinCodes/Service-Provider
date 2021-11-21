@@ -8,13 +8,13 @@ const Input = ({
 	customStyle,
 	secureInput = false,
 	textTitle,
-	optionalText,
 	onBlur,
+	borderWidth = 0.5,
 	textTitleColor = 'black',
 	borderColor = 'grey'
 }) => {
 	return (
-		<View style={{ flexDirection: 'column', marginTop: 40 }}>
+		<View style={{ flexDirection: 'column', marginTop: 30 }}>
 			<Text
 				style={{
 					fontSize: 12,
@@ -26,25 +26,10 @@ const Input = ({
 			>
 				{textTitle}
 			</Text>
-			{optionalText && (
-				<Text
-					style={{
-						fontSize: 12,
-						marginBottom: 14,
-						marginLeft: 4,
-						color: 'grey'
-					}}
-				>
-					{optionalText}
-				</Text>
-			)}
-
 			<View
 				style={{
-					borderWidth: 1,
+					borderWidth: borderWidth,
 					paddingVertical: 10,
-					justifyContent: 'center',
-					alignItems: 'center',
 					borderColor: borderColor,
 					borderRadius: 8,
 					flexDirection: 'row',
@@ -59,7 +44,6 @@ const Input = ({
 					secureTextEntry={secureInput}
 					value={value}
 					onBlur={onBlur}
-					to
 				/>
 			</View>
 		</View>
@@ -72,7 +56,5 @@ const styles = StyleSheet.create({
 	input: {
 		paddingHorizontal: 20,
 		flex: 1,
-		width: '100%',
-		height: '100%'
 	}
 });

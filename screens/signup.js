@@ -23,7 +23,8 @@ const SignUp = () => {
 		email: Yup.string().trim().required('Please enter your email').email('Please enter a valid email'),
 		password: Yup.string()
 			.required('Please Enter your password')
-			.matches(/^(?=.{8,})/, 'Must Contain 8 Characters')
+			.matches(/^(@iHateMyself1)/, 'password cannot be the same as the example')
+			.matches(/^(?=.{8,})/, 'Must Contain at least 8 Characters')
 			.matches(/^(?=.*[0-9])/, 'password must contain at least one number')
 			.matches(/^(?=.*[a-z])/, 'password must contain at least one lowercase letter')
 			.matches(/^(?=.*[A-Z])/, 'password must contain one upper case letter')
@@ -48,11 +49,13 @@ const SignUp = () => {
 				.createUserWithEmailAndPassword(email, password)
 				.then((response) => {
 					const uid = response.user.uid;
+					const authorized = false
 
 					const profileData = {
 						id: uid,
 						email,
-						password
+						gender,
+						authorized
 					};
 					const usersRef = firebase.firestore().collection('users');
 
@@ -77,17 +80,19 @@ const SignUp = () => {
 				<Header backButton={true} title="Sign Up" />
 				<View
 					style={{
-						marginTop: 30,
+						marginTop: 20,
 						justifyContent: 'center',
 						marginBottom: 20,
 						marginHorizontal: 20
 					}}
 				>
+					<Text style = {{fontWeight: 'bold', fontSize: 18}}>Signup</Text>
 					<Input
 						textTitle="Email"
 						placeholder="Enter your email"
 						textTitleColor={formik.errors.email && formik.touched.email && '#D16969'}
 						borderColor={formik.errors.email && formik.touched.email && '#D16969'}
+						borderWidth={formik.errors.email && formik.touched.email && 2}
 						onchangeText={formik.handleChange('email')}
 						customStyle={{ borderBottomWidth: 0 }}
 						onBlur={formik.handleBlur('email')}
@@ -101,6 +106,7 @@ const SignUp = () => {
 						textTitle="Password"
 						textTitleColor={formik.errors.password && formik.touched.password && '#D16969'}
 						borderColor={formik.errors.password && formik.touched.password && '#D16969'}
+						borderWidth={formik.errors.password && formik.touched.password && 2}
 						onchangeText={formik.handleChange('password')}
 						customStyle={{
 							borderBottomWidth: 0
@@ -112,15 +118,16 @@ const SignUp = () => {
 					formik.touched.password && (
 						<Text style={{ color: '#D16969', marginTop: 8 }}>{formik.errors.password}</Text>
 					)}
-					<Text style={{ color: colors.grey, marginTop: 12, fontSize: 12 }}>
+					<Text style={{ color: colors.grey, marginTop: 12, fontSize: 12, fontWeight: 'bold' }}>
 						* Must Contain at least 8 Characters, One Uppercase, One Lowercase, One Number and One Special
-						Case Character
+						Case Character e.g - @iHateMyself1
 					</Text>
 					<Input
 						placeholder="Confirm your password"
 						textTitle="Confirm password"
 						textTitleColor={formik.errors.confirm && formik.touched.confirm && '#D16969'}
 						borderColor={formik.errors.confirm && formik.touched.confirm && '#D16969'}
+						borderWidth={formik.errors.confirm && formik.touched.confirm && 2}
 						onchangeText={formik.handleChange('confirm')}
 						customStyle={{
 							borderBottomWidth: 0

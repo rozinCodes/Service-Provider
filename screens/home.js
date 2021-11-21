@@ -1,49 +1,78 @@
-import { AntDesign } from '@expo/vector-icons';
-import LottieView from 'lottie-react-native';
 import React from 'react';
-import { Dimensions, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Banner from '../components/banner';
 import Button from '../components/button';
-import { spacing } from '../presets';
-import { colors } from '../presets/colors';
-import { firebase } from '../components/configuration/config'
+import { firebase } from '../components/configuration/config';
+import Input from '../components/input';
+import { colors } from '../presets';
 
+export default function Create() {
+	let authorized
 
-const Home = () => {
-	return (
-		<SafeAreaView>
-			<ScrollView>
-				<Banner />
-				<View style={{ alignItems: 'center' }}>
-					<View style={{ position: 'absolute', top: 200, alignItems: 'center' }}>
-						<Text
-							style={{
-								color: colors.white,
-								marginBottom: spacing[2],
-								fontSize: spacing[6],
-								textTransform: 'uppercase',
-								fontWeight: 'bold'
-							}}
-						>
-							Welcome
-						</Text>
-						<Text style={{ color: colors.white, width: 250, textAlign: 'center', lineHeight: spacing[5] }}>
-							Experience natural, lifelike audio and exceptional build quality made for the passionate
-							music enthusiast.
-						</Text>
-					</View>
-					<Button title = "SignOut" onPress = {() => {firebase.auth().signOut()}}/>
-					{/* <LottieView
-						style={{ flex: 1, width: Dimensions.get('window').height / 4, backgroundColor: colors.black }}
-						resizeMode="contain"
-						source={require('../assets/arrow-down.json')}
-						autoPlay={true}
-					/> */}
+	const user = firebase.auth().currentUser;
+	const userRef = firebase.firestore().collection('users').doc(user.uid);
+	const createPost = () => {
+		userRef.get().then((doc) => {
+			if (doc.exists) {
+				authorized = doc.get('authorized');
+				if (authorized == false) {
+					showMessage({
+						message: 'you are not authorized yet',
+						type: 'danger'
+					});
+				} else {
+				<UserApproval/>	
+				}
+			} else {
+				showMessage({
+					message: 'Document doesnt exist',
+					type: 'warning'
+				});
+			}
+		});
+	};
+
+	const UserApproval = () => {
+		return (
+			<View>
+				<View
+					style={{
+						marginBottom: 40,
+						borderRadius: 20,
+						elevation: 1,
+						padding: 30,
+						backgroundColor: colors.white,
+						borderColor: colors.grey,
+						borderWidth: 0.4
+					}}
+				>
+					<Text style = {{color: colors.black}}>{authorized}</Text>
+				<View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
+					<TouchableOpacity style={{ width: '50%', backgroundColor: colors.green, paddingVertical: 14 }}>
+						<Text style={{ textAlign: 'center' }}>Approve</Text>
+					</TouchableOpacity>
+					<TouchableOpacity style={{ width: '50%', backgroundColor: colors.red, paddingVertical: 14 }}>
+						<Text style={{ textAlign: 'center' }}>Reject</Text>
+					</TouchableOpacity>
 				</View>
+				</View>
+			</View>
+		);
+	};
+
+	return (
+		<SafeAreaView style={{ marginHorizontal: 20, flex: 1 }}>
+			<ScrollView>
+				<UserApproval />
+				<Button title="Create" onPress={createPost} />
+				<Button
+					title="SignOut"
+					onPress={() => {
+						firebase.auth().signOut();
+					}}
+				/>
 			</ScrollView>
 		</SafeAreaView>
 	);
-};
-
-export default Home;
+}

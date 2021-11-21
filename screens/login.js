@@ -29,10 +29,12 @@ const Login = ({ navigation }) => {
 		},
 		validationSchema: schema,
 		onSubmit: (values) => {
+			const email = values.email.trim()
+			const password = values.password.trim()
 			setLoading(true);
 			firebase
 				.auth()
-				.signInWithEmailAndPassword(values.email, values.password)
+				.signInWithEmailAndPassword(email, password)
 				.then(() => {
 					setLoading(false);
 					navigation.navigate('Profile');
@@ -67,6 +69,7 @@ const Login = ({ navigation }) => {
 					textTitle="Email"
 					textTitleColor={formik.errors.email && formik.touched.email && '#D16969'}
 					borderColor={formik.errors.email && formik.touched.email && '#D16969'}
+					borderWidth={formik.errors.email && formik.touched.email && 2}
 					onchangeText={formik.handleChange('email')}
 					customStyle={{ borderBottomWidth: 0 }}
 					onBlur={formik.handleBlur('email')}
@@ -77,6 +80,7 @@ const Login = ({ navigation }) => {
 					textTitle="Password"
 					textTitleColor={formik.errors.password && formik.touched.password && '#D16969'}
 					borderColor={formik.errors.password && formik.touched.password && '#D16969'}
+					borderWidth={formik.errors.password && formik.touched.password && 2}
 					onchangeText={formik.handleChange('password')}
 					customStyle={{
 						borderBottomWidth: 0
