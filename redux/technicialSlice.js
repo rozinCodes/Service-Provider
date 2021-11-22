@@ -7,7 +7,7 @@ const initialState = {
     error: null,
 }
 
-export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {
+export const fetchEmp = createAsyncThunk('technician/fetchTechnician', async () => {
   const response = await fetch("http://192.168.150.242:8080/thikthak/api/user")
   return response.json();
 })
@@ -17,15 +17,15 @@ export const technicianSlice = createSlice({
     initialState: initialState,
     reducers: {},
     extraReducers: {
-      [fetchProducts.pending]: (state) => {
+      [fetchEmp.pending]: (state) => {
         state.status = 'loading'
       },
-      [fetchProducts.fulfilled]: (state, action) => {
+      [fetchEmp.fulfilled]: (state, action) => {
         state.status = "succeeded"
         const {payload} = action;
         state.products = payload.products;
       },
-      [fetchProducts.rejected]: (state) => {
+      [fetchEmp.rejected]: (state) => {
         state.status = "failed"
       }
     }

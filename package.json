@@ -30,6 +30,7 @@
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-safe-area-context": "3.2.0",
     "react-native-screens": "~3.4.0",
+    "react-native-swiper": "^1.6.0",
     "react-native-uuid": "^2.0.1",
     "react-native-web": "~0.13.12",
     "react-navigation": "^4.4.4",

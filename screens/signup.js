@@ -23,12 +23,11 @@ const SignUp = () => {
 		email: Yup.string().trim().required('Please enter your email').email('Please enter a valid email'),
 		password: Yup.string()
 			.required('Please Enter your password')
-			.matches(/^(@iHateMyself1)/, 'password cannot be the same as the example')
 			.matches(/^(?=.{8,})/, 'Must Contain at least 8 Characters')
-			.matches(/^(?=.*[0-9])/, 'password must contain at least one number')
-			.matches(/^(?=.*[a-z])/, 'password must contain at least one lowercase letter')
-			.matches(/^(?=.*[A-Z])/, 'password must contain one upper case letter')
-			.matches(/^(?=.*[!@#\$%\^&\*])/, 'password must be contain at least one special character'),
+			.matches(/^(?=.*[0-9])/, 'Password must contain at least one number')
+			.matches(/^(?=.*[a-z])/, 'Password must contain at least one lowercase letter')
+			.matches(/^(?=.*[A-Z])/, 'Password must contain one upper case letter')
+			.matches(/^(?=.*[!@#\$%\^&\*])/, 'Password must be contain at least one special character'),
 		confirm: Yup.string()
 			.oneOf([ Yup.ref('password'), null ], 'Passwords do not match')
 			.required('Please confirm your password')
