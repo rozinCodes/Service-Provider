@@ -12,12 +12,15 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { colors } from '../presets';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { userSelector } from '../redux/userSlice';
 
 const SignUp = () => {
 	const OPTIONS = [ 'Male', 'Female', 'Non-binary' ];
 
 	const [ gender, setGender ] = React.useState(null);
 	const [ loading, setLoading ] = React.useState(false);
+	const [visible, setVisible] = React.useState(true)
 
 	const schema = Yup.object().shape({
 		email: Yup.string().trim().required('Please enter your email').email('Please enter a valid email'),
@@ -73,6 +76,7 @@ const SignUp = () => {
 		}
 	});
 
+
 	return (
 		<SafeAreaView>
 			<KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
@@ -106,11 +110,13 @@ const SignUp = () => {
 						textTitleColor={formik.errors.password && formik.touched.password && '#D16969'}
 						borderColor={formik.errors.password && formik.touched.password && '#D16969'}
 						borderWidth={formik.errors.password && formik.touched.password && 2}
+						secureIcon
 						onchangeText={formik.handleChange('password')}
 						customStyle={{
 							borderBottomWidth: 0
 						}}
-						secureInput
+						secureInput={visible}
+						onPress={() => setVisible(!visible)}
 						onBlur={formik.handleBlur('password')}
 					/>
 					{formik.errors.password &&
@@ -151,7 +157,7 @@ const SignUp = () => {
 						autoPlay={true}
 					/>
 				) : (
-					<Button onPress={formik.handleSubmit} title="Submit" />
+					<Button disabled={!(formik.isValid && formik.dirty && gender != null)} onPress={formik.handleSubmit} title="Submit" />
 				)}
 
 				<Text style={{ alignSelf: 'center', fontSize: 12 }}>

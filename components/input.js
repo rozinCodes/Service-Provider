@@ -1,17 +1,20 @@
 import React from 'react';
-import { StyleSheet, TextInput, Text, View } from 'react-native';
+import { StyleSheet, TextInput, Text, View, TouchableOpacity } from 'react-native';
+import { Entypo } from '@expo/vector-icons';
 
 const Input = ({
 	placeholder,
 	value,
 	onchangeText,
 	customStyle,
-	secureInput = false,
+	secureInput,
 	textTitle,
 	onBlur,
 	borderWidth = 0.5,
 	textTitleColor = 'black',
-	borderColor = 'grey'
+	borderColor = 'grey',
+	secureIcon,
+	onPress
 }) => {
 	return (
 		<View style={{ flexDirection: 'column', marginTop: 30 }}>
@@ -45,6 +48,19 @@ const Input = ({
 					value={value}
 					onBlur={onBlur}
 				/>
+				{secureIcon && (
+					<TouchableOpacity onPress = {onPress}>
+						{secureInput ?
+						(
+						<Entypo style={{ paddingRight: 20 }} name="eye-with-line" size={18} color="black" /> 
+						)
+					:
+					(
+						<Entypo style={{ paddingRight: 20 }} name="eye" size={18} color="black" />
+					)
+					}
+					</TouchableOpacity>
+				)}
 			</View>
 		</View>
 	);
@@ -55,6 +71,6 @@ export default Input;
 const styles = StyleSheet.create({
 	input: {
 		paddingHorizontal: 20,
-		flex: 1,
+		flex: 1
 	}
 });

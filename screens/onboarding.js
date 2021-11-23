@@ -10,6 +10,7 @@ import {
   Alert
 } from 'react-native';
 import Swiper from 'react-native-swiper';
+import Login from './login';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,12 +28,13 @@ export default class Onboarding extends Component {
       <View style={styles.container}>
         <StatusBar hidden={true} />
         <Swiper autoplay={false}>
-          <View style={styles.slide}>
+          {/* <View style={styles.slide}>
             <Image
               source={require('../assets/images/empty.png')}
               style={styles.image}
             />
-          </View>
+          </View> */}
+          <Login/>
           <View style={styles.slide}>
             {/* <Image
               source={require('./assets/images/bgd2.jpg')}
@@ -46,15 +48,15 @@ export default class Onboarding extends Component {
             /> */}
           </View>
         </Swiper>
-        <View style={styles.textContainer}>
+        {/* <View style={styles.textContainer}>
           <View style={styles.titleContainer}>
             <Text style={styles.title}>YOUR MUSIC.</Text>
           </View>
           <View style={styles.subTitleContainer}>
             <Text style={styles.subtitle}>Tuned to you.</Text>
           </View>
-        </View>
-        <View style={styles.buttonContainer}>
+        </View> */}
+        {/* <View style={styles.buttonContainer}>
           <TouchableOpacity onPress={() => this._onPress('Tapped Sign up')}>
             <View style={styles.signupContainer}>
               <Text style={styles.signup}>Sign up</Text>
@@ -65,7 +67,7 @@ export default class Onboarding extends Component {
               <Text style={styles.login}>Log in</Text>
             </View>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
     );
   }
