@@ -19,7 +19,6 @@ const Create = ({ navigation }) => {
 	const [ gender, setGender ] = React.useState(null);
 	const [ loading, setLoading ] = React.useState(false);
 	const [ image, setImage ] = React.useState(null);
-    const [status, setStatus] = React.useState('')
 
 
 	// Image picker function

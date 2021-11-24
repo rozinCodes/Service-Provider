@@ -18,6 +18,7 @@ import Checkout from '../screens/checkout';
 import { Dimensions, LogBox } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Profile from '../screens/profile';
+import { Onboarding } from '../screens/onboarding';
 
 
 const Tab = createBottomTabNavigator();
@@ -60,7 +61,8 @@ const Navigation = () => {
 	return (
 		<NavigationContainer theme={THEME}>
 			{user ? (
-				<BottomTabNavigator />
+				// <BottomTabNavigator />
+				<Onboarding/>
 			) : (
 				<stack.Navigator>
 					<stack.Screen name="Login" component={Login} options={{ headerShown: false }} />

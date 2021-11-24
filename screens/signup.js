@@ -20,7 +20,7 @@ const SignUp = () => {
 
 	const [ gender, setGender ] = React.useState(null);
 	const [ loading, setLoading ] = React.useState(false);
-	const [visible, setVisible] = React.useState(true)
+	const [ visible, setVisible ] = React.useState(true);
 
 	const schema = Yup.object().shape({
 		email: Yup.string().trim().required('Please enter your email').email('Please enter a valid email'),
@@ -51,7 +51,7 @@ const SignUp = () => {
 				.createUserWithEmailAndPassword(email, password)
 				.then((response) => {
 					const uid = response.user.uid;
-					const authorized = false
+					const authorized = false;
 
 					const profileData = {
 						id: uid,
@@ -75,11 +75,13 @@ const SignUp = () => {
 			setLoading(false);
 		}
 	});
-
+	const emailError = formik.errors.email && formik.touched.email
+	const passwordError = formik.errors.password && formik.touched.password
+	const confirmError = formik.errors.confirm && formik.touched.confirm
 
 	return (
 		<SafeAreaView>
-			<KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
+			<KeyboardAwareScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='always'>
 				<Header backButton={true} title="Sign Up" />
 				<View
 					style={{
@@ -89,13 +91,12 @@ const SignUp = () => {
 						marginHorizontal: 20
 					}}
 				>
-					<Text style = {{fontWeight: 'bold', fontSize: 18}}>Signup</Text>
 					<Input
 						textTitle="Email"
 						placeholder="Enter your email"
-						textTitleColor={formik.errors.email && formik.touched.email && '#D16969'}
-						borderColor={formik.errors.email && formik.touched.email && '#D16969'}
-						borderWidth={formik.errors.email && formik.touched.email && 2}
+						textTitleColor={emailError && '#D16969'}
+						borderColor={emailError && '#D16969'}
+						borderWidth={emailError && 2}
 						onchangeText={formik.handleChange('email')}
 						customStyle={{ borderBottomWidth: 0 }}
 						onBlur={formik.handleBlur('email')}
@@ -107,9 +108,9 @@ const SignUp = () => {
 					<Input
 						placeholder="Enter your password"
 						textTitle="Password"
-						textTitleColor={formik.errors.password && formik.touched.password && '#D16969'}
-						borderColor={formik.errors.password && formik.touched.password && '#D16969'}
-						borderWidth={formik.errors.password && formik.touched.password && 2}
+						textTitleColor={passwordError && '#D16969'}
+						borderColor={passwordError && '#D16969'}
+						borderWidth={passwordError && 2}
 						secureIcon
 						onchangeText={formik.handleChange('password')}
 						customStyle={{
@@ -130,9 +131,9 @@ const SignUp = () => {
 					<Input
 						placeholder="Confirm your password"
 						textTitle="Confirm password"
-						textTitleColor={formik.errors.confirm && formik.touched.confirm && '#D16969'}
-						borderColor={formik.errors.confirm && formik.touched.confirm && '#D16969'}
-						borderWidth={formik.errors.confirm && formik.touched.confirm && 2}
+						textTitleColor={confirmError && '#D16969'}
+						borderColor={confirmError && '#D16969'}
+						borderWidth={confirmError && 2}
 						onchangeText={formik.handleChange('confirm')}
 						customStyle={{
 							borderBottomWidth: 0
@@ -157,7 +158,11 @@ const SignUp = () => {
 						autoPlay={true}
 					/>
 				) : (
-					<Button disabled={!(formik.isValid && formik.dirty && gender != null)} onPress={formik.handleSubmit} title="Submit" />
+					<Button
+						disabled={!(formik.isValid && formik.dirty && gender != null)}
+						onPress={formik.handleSubmit}
+						title="Submit"
+					/>
 				)}
 
 				<Text style={{ alignSelf: 'center', fontSize: 12 }}>

@@ -10,7 +10,7 @@ const Input = ({
 	secureInput,
 	textTitle,
 	onBlur,
-	borderWidth = 0.5,
+	borderWidth = 1,
 	textTitleColor = 'black',
 	borderColor = 'grey',
 	secureIcon,

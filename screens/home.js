@@ -7,19 +7,43 @@ import Button from '../components/button';
 import { firebase } from '../components/configuration/config';
 import Input from '../components/input';
 import { colors } from '../presets';
-import { fetchEmp } from '../redux/technicialSlice';
+import { fetchEmp, fetchProducts } from '../redux/technicialSlice';
 
 export default function Create() {
-	// const dispatch = useDispatch()
 
-	// React.useEffect(() => {
-	// 	dispatch(fetchEmp())
-	// }, [])
+
 
 	const user = firebase.auth().currentUser;
 	const userRef = firebase.firestore().collection('users').doc(user.uid);
-	const createPost = () => {
-		userRef.get().then((doc) => {
+	let [users, setUsers] = React.useState([]);
+
+	// React.useEffect(() => {
+	// 	userRef.get().then((doc) => {
+	// 		if (doc.exists) {
+	// 			const authorized = doc.get('authorized');
+	// 			if (authorized == false) {
+	// 				showMessage({
+	// 					message: 'you are not authorized yet',
+	// 					type: 'danger'
+	// 				});
+	// 			} else {
+	// 				userRef.get().then((doc) => {
+	// 					if (doc.exists) {
+	// 						setUsers(doc.data())
+	// 					}
+	// 				});
+	// 			}
+	// 		} else {
+	// 			showMessage({
+	// 				message: 'Document doesnt exist',
+	// 				type: 'warning'
+	// 			});
+	// 		}
+	// 	});
+	// }, []);
+
+	const createPost = async () => {
+	 userRef.get().then((doc) => {
 			if (doc.exists) {
 				const authorized = doc.get('authorized');
 				if (authorized == false) {
@@ -28,7 +52,12 @@ export default function Create() {
 						type: 'danger'
 					});
 				} else {
-				
+				 userRef.get().then((docs) => {
+						if (docs.exists) {
+							users.push(doc.data());
+							console.warn('requests data: ', users);
+						}
+					});
 				}
 			} else {
 				showMessage({
@@ -38,6 +67,10 @@ export default function Create() {
 			}
 		});
 	};
+	const dispatch = useDispatch();
+	React.useEffect(() => {
+		dispatch(fetchProducts());
+	}, []);
 
 	const UserApproval = () => {
 		return (
@@ -53,14 +86,12 @@ export default function Create() {
 						borderWidth: 0.4
 					}}
 				>
-				<View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
-					<TouchableOpacity style={{ width: '50%', backgroundColor: colors.green, paddingVertical: 14 }}>
+							{/* <TouchableOpacity style={{ width: '50%', backgroundColor: colors.green, paddingVertical: 6 }}>
 						<Text style={{ textAlign: 'center' }}>Approve</Text>
 					</TouchableOpacity>
-					<TouchableOpacity style={{ width: '50%', backgroundColor: colors.red, paddingVertical: 14 }}>
+					<TouchableOpacity style={{ width: '50%', backgroundColor: colors.red, paddingVertical: 6 }}>
 						<Text style={{ textAlign: 'center' }}>Reject</Text>
-					</TouchableOpacity>
-				</View>
+					</TouchableOpacity> */}
 				</View>
 			</View>
 		);

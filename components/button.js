@@ -4,8 +4,8 @@ import { colors } from '../presets';
 
 const Button = ({ title, onPress, disabled }) => {
 	return (
-		<TouchableOpacity disabled={disabled} style={[styles.button, disabled && {backgroundColor: '#757575'}]} onPress={onPress}>
-			<Text style={styles.text}>{title}</Text>
+		<TouchableOpacity disabled={disabled} style={[styles.button, disabled && {backgroundColor: colors.grey}]} onPress={onPress}>
+			<Text style={{color: disabled ? colors.white : colors.black, textAlign: 'center'}}>{title}</Text>
 		</TouchableOpacity>
 	);
 };
@@ -23,8 +23,4 @@ const styles = StyleSheet.create({
 		alignSelf: 'center',
 		justifyContent: 'center'
 	},
-	text: {
-		color: 'black',
-		textAlign: 'center'
-	}
 });

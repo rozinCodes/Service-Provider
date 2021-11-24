@@ -1,10 +1,8 @@
-import { configureStore } from '@reduxjs/toolkit';
-import userReducer from './userSlice';
-import viewReducer from './viewSlice';
+import { configureStore } from '@reduxjs/toolkit'
+import technicialSlice from './technicialSlice'
 
 export default configureStore({
-  reducer: {
-    user: userReducer,
-    view: viewReducer,
-  },
-});
+    reducer: {
+       techinican: technicialSlice
+    }
+})
