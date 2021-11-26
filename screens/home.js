@@ -55,7 +55,6 @@ export default function Create() {
 				 userRef.get().then((docs) => {
 						if (docs.exists) {
 							users.push(doc.data());
-							console.warn('requests data: ', users);
 						}
 					});
 				}

@@ -10,16 +10,16 @@ export const Onboarding = ({ navigation }) => {
 		<View style={styles.container}>
 			<StatusBar hidden={true} />
 			<Swiper
-        loop={false}
-        activeDotStyle={{backgroundColor: colors.blue}}
-        dotStyle={{backgroundColor: colors.white, borderColor: colors.blue, borderWidth: 0.5}}
+				loop={false}
+				activeDotStyle={{ backgroundColor: colors.blue }}
+				dotStyle={{ backgroundColor: colors.white, borderColor: colors.blue, borderWidth: 0.5 }}
 				paginationStyle={{
 					marginBottom: 620,
 					marginRight: 320
 				}}
 				autoplay={false}
 			>
-				<Login onPress = {() => navigation.navigate('SignUp')} />
+				<Login onPress={() => navigation.navigate('SignUp')} />
 				<SignUp />
 			</Swiper>
 		</View>
