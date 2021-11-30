@@ -9,7 +9,6 @@ import { colors } from '../presets/colors';
 import Login from '../screens/login';
 import SignUp from '../screens/signup';
 import Cart from '../screens/cart';
-import Home from '../screens/home';
 import SoundBox from '../screens/soundbox';
 import Earphone from '../screens/earphone';
 import Headphone from '../screens/headphone';
@@ -19,6 +18,8 @@ import { Dimensions, LogBox } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Profile from '../screens/profile';
 import { Onboarding } from '../screens/onboarding';
+import Create from '../screens/create';
+import Home from '../screens/home';
 
 
 const Tab = createBottomTabNavigator();
@@ -61,13 +62,11 @@ const Navigation = () => {
 	return (
 		<NavigationContainer theme={THEME}>
 			{user ? (
-				// <BottomTabNavigator />
-				<Onboarding/>
+				<BottomTabNavigator />
 			) : (
 				<stack.Navigator>
 					<stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
 					<stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
-					<stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
 				</stack.Navigator>
 			)}
 		</NavigationContainer>
@@ -142,7 +141,8 @@ function TabBarIcons({ fontFamily, color, name }) {
 function HomeStackScreen() {
 	return (
 		<stack.Navigator screenOptions={{ headerShown: false }}>
-			<stack.Screen name="Home " component={Home} />
+			<stack.Screen name="Home" component={Home} />
+			<stack.Screen name="Create" component={Create} />
 		</stack.Navigator>
 	);
 }

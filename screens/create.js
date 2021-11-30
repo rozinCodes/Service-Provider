@@ -1,27 +1,95 @@
+
 import React from 'react';
+import { Dimensions, ScrollView, StyleSheet, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
+import MapView from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '../components/button';
 import { firebase } from '../components/configuration/config';
 import Input from '../components/input';
+import * as Location from 'expo-location';
 
-const user = firebase.auth().currentUser;
-const userRef = firebase.firestore().collection('users');
 
-export default function Create() {
-	const createPost = () => {
-		if (userRef.where('authorised', '==', false)) {
+const Create = ({ navigation }) => {
+	const [ name, setName ] = React.useState('');
+	const [ age, setAge ] = React.useState('');
+	const [ gender, setGender ] = React.useState(null);
+	const [ shift, setShift ] = React.useState([]);
+	const [ loading, setLoading ] = React.useState(false);
+	const [ image, setImage ] = React.useState(null);
+	
+
+	//create employee data
+	function createData() {
+		setLoading(true);
+		const user = firebase.auth().currentUser;
+		if (name != '' && age != '' && gender != null) {
+			const employeeData = {
+				userId: user.uid,
+				name,
+				age,
+				gender,
+				image,
+				shift
+			};
+			const usersRef = firebase.firestore().collection('employees');
+
+			usersRef.add(employeeData);
+			// show success message
 			showMessage({
-				message: 'Not authorised',
-				description: 'Sorry, you need to be authorised in order to create posts'
+				message: 'Success',
+				description: 'Your data has been saved!',
+				type: 'success'
 			});
+			setLoading(false);
+			navigation.navigate('Home');
+		} else {
+			showMessage({
+				message: 'please fill the required fields',
+				type: 'warning',
+				position: 'bottom'
+			});
+			setLoading(false);
 		}
-	};
+	}
 
 	return (
-		<SafeAreaView style={{ justifyContent: 'center', alignItems: 'center' }}>
-			<Input placeholder="create your post here..." textTitle="Create post" />
-			<Button title="Create" onPress={createPost} />
+		<SafeAreaView>
+			<ScrollView style = {{
+				marginHorizontal: 20
+			}}>
+				<Input
+					onchangeText={(text) => setName(text)}
+					placeholder="Your name"
+					customStyle={{ borderBottomWidth: 0 }}
+				/>
+				<Input
+					onchangeText={(text) => setAge(text)}
+					placeholder="Your age"
+					customStyle={{ borderBottomWidth: 0 }}
+				/>
+				 <View style={styles.container}>
+					<MapView style={styles.map} />
+				</View>
+	
+			</ScrollView>
+				<Button title = "Create" onPress = {() =>{}} />
 		</SafeAreaView>
 	);
-}
+};
+
+export default Create;
+
+
+const styles = StyleSheet.create({
+	container: {
+	  backgroundColor: '#000',
+	  marginTop: 20,
+	  height: 200,
+	  width: '100%'
+	},
+	map: {
+	  width: Dimensions.get('window').width,
+	  height: Dimensions.get('window').height,
+	},
+  });

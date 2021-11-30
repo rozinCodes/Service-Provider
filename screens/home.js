@@ -1,49 +1,18 @@
 import React from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDispatch } from 'react-redux';
 import Button from '../components/button';
 import { firebase } from '../components/configuration/config';
-import Input from '../components/input';
-import { colors } from '../presets';
-import { fetchEmp, fetchProducts } from '../redux/technicialSlice';
 
-export default function Create() {
-
-
-
+const Home = ({ navigation }) => {
 	const user = firebase.auth().currentUser;
 	const userRef = firebase.firestore().collection('users').doc(user.uid);
-	let [users, setUsers] = React.useState([]);
-
-	// React.useEffect(() => {
-	// 	userRef.get().then((doc) => {
-	// 		if (doc.exists) {
-	// 			const authorized = doc.get('authorized');
-	// 			if (authorized == false) {
-	// 				showMessage({
-	// 					message: 'you are not authorized yet',
-	// 					type: 'danger'
-	// 				});
-	// 			} else {
-	// 				userRef.get().then((doc) => {
-	// 					if (doc.exists) {
-	// 						setUsers(doc.data())
-	// 					}
-	// 				});
-	// 			}
-	// 		} else {
-	// 			showMessage({
-	// 				message: 'Document doesnt exist',
-	// 				type: 'warning'
-	// 			});
-	// 		}
-	// 	});
-	// }, []);
+	let [ users, setUsers ] = React.useState([]);
+	const [blogs,setBlogs]= React.useState([])
 
 	const createPost = async () => {
-	 userRef.get().then((doc) => {
+		userRef.get().then((doc) => {
 			if (doc.exists) {
 				const authorized = doc.get('authorized');
 				if (authorized == false) {
@@ -52,11 +21,10 @@ export default function Create() {
 						type: 'danger'
 					});
 				} else {
-				 userRef.get().then((docs) => {
-						if (docs.exists) {
-							users.push(doc.data());
-						}
-					});
+					const data = userRef.get();
+					data.docs.forEach(item=>{
+						setBlogs([...blogs,item.data()])
+					   })
 				}
 			} else {
 				showMessage({
@@ -66,32 +34,12 @@ export default function Create() {
 			}
 		});
 	};
-	const dispatch = useDispatch();
-	React.useEffect(() => {
-		dispatch(fetchProducts());
-	}, []);
+
 
 	const UserApproval = () => {
 		return (
 			<View>
-				<View
-					style={{
-						marginBottom: 40,
-						borderRadius: 20,
-						elevation: 1,
-						padding: 30,
-						backgroundColor: colors.white,
-						borderColor: colors.grey,
-						borderWidth: 0.4
-					}}
-				>
-							{/* <TouchableOpacity style={{ width: '50%', backgroundColor: colors.green, paddingVertical: 6 }}>
-						<Text style={{ textAlign: 'center' }}>Approve</Text>
-					</TouchableOpacity>
-					<TouchableOpacity style={{ width: '50%', backgroundColor: colors.red, paddingVertical: 6 }}>
-						<Text style={{ textAlign: 'center' }}>Reject</Text>
-					</TouchableOpacity> */}
-				</View>
+
 			</View>
 		);
 	};
@@ -100,7 +48,8 @@ export default function Create() {
 		<SafeAreaView style={{ marginHorizontal: 20, flex: 1 }}>
 			<ScrollView>
 				<UserApproval />
-				<Button title="Create" onPress={createPost} />
+				<Button title = "navigate" onPress = {() => navigation.navigate('Create')}/>
+
 				<Button
 					title="SignOut"
 					onPress={() => {
@@ -111,3 +60,4 @@ export default function Create() {
 		</SafeAreaView>
 	);
 }
+export default Home

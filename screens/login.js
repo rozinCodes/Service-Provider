@@ -10,7 +10,7 @@ import Button from '../components/button';
 import { firebase } from '../components/configuration/config';
 import Input from '../components/input';
 
-const Login = ({ onPress }) => {
+const Login = ({ navigation }) => {
 	const [ loading, setLoading ] = React.useState(false);
 	const [ visible, setVisible ] = React.useState(true);
 
@@ -110,7 +110,7 @@ const Login = ({ onPress }) => {
 					)}
 					<Text style={{ alignSelf: 'center', marginVertical: 10 }}>
 						Don't have an account?{' '}
-						<Text onPress={onPress} style={{ color: 'dodgerblue' }}>
+						<Text onPress={() => navigation.navigate('SignUp')} style={{ color: 'dodgerblue' }}>
 							{' '}
 							Sign up
 						</Text>

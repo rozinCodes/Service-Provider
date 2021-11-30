@@ -5,7 +5,7 @@ import { colors } from '../presets';
 import Login from './login';
 import SignUp from './signup';
 
-export const Onboarding = ({ navigation }) => {
+export const Onboarding = () => {
 	return (
 		<View style={styles.container}>
 			<StatusBar hidden={true} />
@@ -19,7 +19,7 @@ export const Onboarding = ({ navigation }) => {
 				}}
 				autoplay={false}
 			>
-				<Login onPress={() => navigation.navigate('SignUp')} />
+				<Login />
 				<SignUp />
 			</Swiper>
 		</View>
