@@ -75,7 +75,7 @@ const Navigation = () => {
 
 function BottomTabNavigator() {
 	return (
-		<Tab.Navigator initialRouteName="Home" screenOptions={{ tabBarActiveTintColor: colors.primary }}>
+		<Tab.Navigator initialRouteName="Home " screenOptions={{ tabBarActiveTintColor: colors.primary }}>
 			<Tab.Screen
 				name="Home"
 				component={HomeStackScreen}
