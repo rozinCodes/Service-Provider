@@ -77,7 +77,7 @@ function BottomTabNavigator() {
 	return (
 		<Tab.Navigator initialRouteName="Home " screenOptions={{ tabBarActiveTintColor: colors.primary }}>
 			<Tab.Screen
-				name="Home"
+				name="Home "
 				component={HomeStackScreen}
 				options={{
 					headerTitleAlign: 'center',
