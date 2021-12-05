@@ -18,14 +18,15 @@ const Create = ({ navigation }) => {
 	const [age, setAge] = React.useState('');
 	const [loading, setLoading] = React.useState(false);
 	const [region, setRegion] = React.useState({
-		latitude: 37.78825,
-		longitude: -122.4324,
-		latitudeDelta: 0.0922,
-		longitudeDelta: 0.0421,
-	  });
+		latitude: 24.78825,
+		longitude: 90.4324,
+		latitudeDelta: 0.0422,
+		longitudeDelta: 0.0121,
+	});
 	const [errorMsg, setErrorMsg] = React.useState(null);
 
 	React.useEffect(() => {
+		setLoading(true);
 		(async () => {
 			let { status } = await Location.requestForegroundPermissionsAsync();
 			if (status !== 'granted') {
@@ -35,6 +36,7 @@ const Create = ({ navigation }) => {
 
 			let location = await Location.getCurrentPositionAsync({});
 			setRegion(location)
+			setLoading(false);
 		})();
 	}, []);
 
@@ -70,44 +72,49 @@ const Create = ({ navigation }) => {
 
 	return (
 		<SafeAreaView>
-			<ScrollView style={{
-				marginHorizontal: 20
-			}}>
-				<Input
-					onchangeText={(text) => setName(text)}
-					placeholder="Your name"
-					customStyle={{ borderBottomWidth: 0 }}
-				/>
-				<Input
-					onchangeText={(text) => setAge(text)}
-					placeholder="Your age"
-					customStyle={{ borderBottomWidth: 0 }}
-				/>
-				<View style={styles.container}>
-					<MapView
-						initialRegion={{latitude: 90, longitude: 150, latitudeDelta: 5, longitudeDelta: 5}}
-						zoomEnabled={true}
-						showsUserLocation={true}
-						provider='google'
-						style={styles.map} >
-						<Marker coordinate={{latitude: 90, longitude: 150}}
-							draggable={true}
-							onDragEnd={(e) => {
-								// setRegion({
-								// 	latitude: e.nativeEvent.coordinate.latitude,
-								// 	longitude: e.nativeEvent.coordinate.longitude
-								// })
-							}}
-						>
-							<Callout>
-								<Text>Current Location</Text>
-							</Callout>
-						</Marker>
-					</MapView>
-				</View>
+			{(region == (null || 'undefined')) ? <ActivityIndicator />
+				: <ScrollView style={{
+					marginHorizontal: 20
+				}}>
+					<Input
+						onchangeText={(text) => setName(text)}
+						placeholder="Your name"
+						customStyle={{ borderBottomWidth: 0 }}
+					/>
+					<Input
+						onchangeText={(text) => setAge(text)}
+						placeholder="Your age"
+						customStyle={{ borderBottomWidth: 0 }}
+					/>
+					<View style={styles.container}>
 
-			</ScrollView>
-			<Button title="Create" onPress={() => {}} />
+						<MapView
+						provider= "google"
+							
+							initialRegion={region}
+							zoomEnabled={true}
+							showsUserLocation={true}
+							provider='google'
+							style={styles.map} >
+							<Marker coordinate={{longitude: region.longitude, latitude: region.latitude}}
+								draggable={true}
+								onDragEnd={(e) => {
+									setRegion({
+										latitude: e.nativeEvent.coordinate.latitude,
+										longitude: e.nativeEvent.coordinate.longitude
+									})
+								}}
+							>
+								<Callout>
+									<Text>Current Location</Text>
+								</Callout>
+							</Marker>
+						</MapView>
+					</View>
+
+				</ScrollView>
+				// <Button title="Create" onPress={() => { }} />
+			}
 		</SafeAreaView>
 	);
 };
