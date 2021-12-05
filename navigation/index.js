@@ -15,7 +15,6 @@ import Headphone from '../screens/headphone';
 import ProductDetails from '../screens/product-details';
 import Checkout from '../screens/checkout';
 import { Dimensions, LogBox } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Profile from '../screens/profile';
 import { Onboarding } from '../screens/onboarding';
 import Create from '../screens/create';
