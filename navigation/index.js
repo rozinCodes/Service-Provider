@@ -1,24 +1,25 @@
-import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
+import { Fontisto, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import React from "react";
-import LottieView from "lottie-react-native";
-import { Ionicons, MaterialCommunityIcons, Fontisto } from "@expo/vector-icons";
+import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import * as Notifications from "expo-notifications";
+import LottieView from "lottie-react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Dimensions, LogBox } from "react-native";
 import { firebase } from "../components/configuration/config";
 import { colors } from "../presets/colors";
-import Login from "../screens/login";
-import SignUp from "../screens/signup";
 import Cart from "../screens/cart";
-import SoundBox from "../screens/soundbox";
+import Checkout from "../screens/checkout";
 import Earphone from "../screens/earphone";
 import Headphone from "../screens/headphone";
-import ProductDetails from "../screens/product-details";
-import Checkout from "../screens/checkout";
-import { Dimensions, LogBox } from "react-native";
-import Profile from "../screens/profile";
-import { Onboarding } from "../screens/onboarding";
-import Create from "../screens/create";
 import Home from "../screens/home";
+import Login from "../screens/login";
+import Notification from "../screens/notification";
+import ProductDetails from "../screens/product-details";
+import SignUp from "../screens/signup";
+import SoundBox from "../screens/soundbox";
+import Profile from "../screens/profile";
+import Create from "../screens/create";
 
 const Tab = createBottomTabNavigator();
 const stack = createNativeStackNavigator();
@@ -30,20 +31,80 @@ const THEME = {
     background: colors.white,
   },
 };
+
+//request notification permission
+
+async function registerForPushNotificationsAsync() {
+  let token;
+  if (Constants.isDevice) {
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      alert("Failed to get push token for push notification!");
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log(token);
+  } else {
+    alert("Must use physical device for Push Notifications");
+  }
+
+  if (Platform.OS === "android") {
+    Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
+
+  return token;
+}
+
 LogBox.ignoreLogs(["Setting a timer"]);
 
 const Navigation = () => {
+  const [expoPushToken, setExpoPushToken] = useState("");
   const [user, setUser] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
 
   function userStateChanged(user) {
     setUser(user);
     setLoading(false);
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
+    registerForPushNotificationsAsync().then((token) =>
+      setExpoPushToken(token)
+    );
+    // This listener is fired whenever a notification is received while the app is foregrounded
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        setNotification(notification);
+      });
+
+    // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log(response);
+      });
+
     const subscribe = firebase.auth().onAuthStateChanged(userStateChanged);
-    return subscribe;
+    return () => {
+      subscribe;
+      Notifications.removeNotificationSubscription(
+        notificationListener.current
+      );
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
   }, []);
 
   if (loading) {
@@ -178,7 +239,9 @@ function HomeStackScreen() {
   return (
     <stack.Navigator screenOptions={{ headerShown: false }}>
       <stack.Screen name="Home" component={Home} />
+      <stack.Screen name="Profile" component={Profile} />
       <stack.Screen name="Create" component={Create} />
+      <stack.Screen name="Notification" component={Notification} />
     </stack.Navigator>
   );
 }

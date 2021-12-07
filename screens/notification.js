@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import React, { useState, useEffect, useRef } from 'react';
 import { Text, View, Button, Platform } from 'react-native';
+import { colors } from '../presets';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -11,7 +12,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export default function App() {
+const Notification = () => {
   const [expoPushToken, setExpoPushToken] = useState('');
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
@@ -19,7 +20,6 @@ export default function App() {
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
-
     // This listener is fired whenever a notification is received while the app is foregrounded
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
       setNotification(notification);
@@ -34,6 +34,7 @@ export default function App() {
       Notifications.removeNotificationSubscription(notificationListener.current);
       Notifications.removeNotificationSubscription(responseListener.current);
     };
+
   }, []);
 
   return (
@@ -110,3 +111,5 @@ async function registerForPushNotificationsAsync() {
 
   return token;
 }
+
+export default Notification
