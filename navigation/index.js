@@ -32,47 +32,11 @@ const THEME = {
   },
 };
 
-//request notification permission
-
-async function registerForPushNotificationsAsync() {
-  let token;
-  if (Constants.isDevice) {
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== "granted") {
-      alert("Failed to get push token for push notification!");
-      return;
-    }
-    token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log(token);
-  } else {
-    alert("Must use physical device for Push Notifications");
-  }
-
-  if (Platform.OS === "android") {
-    Notifications.setNotificationChannelAsync("default", {
-      name: "default",
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: "#FF231F7C",
-    });
-  }
-
-  return token;
-}
-
-LogBox.ignoreLogs(["Setting a timer"]);
+LogBox.ignoreLogs(["Setting a timer", "AsyncStorage"]);
 
 const Navigation = () => {
-  const [expoPushToken, setExpoPushToken] = useState("");
-  const [user, setUser] = React.useState(false);
-  const [loading, setLoading] = React.useState(true);
-  const [notification, setNotification] = useState(false);
+  const [user, setUser] = useState(false);
+  const [loading, setLoading] = useState(true);
   const notificationListener = useRef();
   const responseListener = useRef();
 
@@ -82,21 +46,6 @@ const Navigation = () => {
   }
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then((token) =>
-      setExpoPushToken(token)
-    );
-    // This listener is fired whenever a notification is received while the app is foregrounded
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
-        setNotification(notification);
-      });
-
-    // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log(response);
-      });
-
     const subscribe = firebase.auth().onAuthStateChanged(userStateChanged);
     return () => {
       subscribe;
@@ -120,22 +69,7 @@ const Navigation = () => {
 
   return (
     <NavigationContainer theme={THEME}>
-      {user ? (
-        <BottomTabNavigator />
-      ) : (
-        <stack.Navigator>
-          <stack.Screen
-            name="Login"
-            component={Login}
-            options={{ headerShown: false }}
-          />
-          <stack.Screen
-            name="SignUp"
-            component={SignUp}
-            options={{ headerShown: false }}
-          />
-        </stack.Navigator>
-      )}
+      {user ? <BottomTabNavigator /> : <AuthStackScreen />}
     </NavigationContainer>
   );
 };
@@ -193,7 +127,7 @@ function BottomTabNavigator() {
           ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Earphone"
         component={EarphoneScreen}
         options={{
@@ -220,7 +154,7 @@ function BottomTabNavigator() {
             />
           ),
         }}
-      />
+      /> */}
     </Tab.Navigator>
   );
 }
@@ -242,6 +176,27 @@ function HomeStackScreen() {
       <stack.Screen name="Profile" component={Profile} />
       <stack.Screen name="Create" component={Create} />
       <stack.Screen name="Notification" component={Notification} />
+    </stack.Navigator>
+  );
+}
+function AuthStackScreen() {
+  return (
+    <stack.Navigator>
+      <stack.Screen
+        name="Login"
+        component={Login}
+        options={{ headerShown: false }}
+      />
+      <stack.Screen
+        name="SignUp"
+        component={SignUp}
+        options={{ headerShown: false }}
+      />
+      <stack.Screen
+        name="PRofile"
+        component={Profile}
+        options={{ headerShown: false }}
+      />
     </stack.Navigator>
   );
 }

@@ -23,16 +23,16 @@ import Input from "../components/input";
 import RadioInput from "../components/radioInput";
 
 const Profile = ({ navigation }) => {
-  const OPTIONS = ["Male", "Female", "Non-binary"];
-  const [gender, setGender] = React.useState(null);
+  const OPTIONS = ["Technician", "User"];
+  const [type, setType] = React.useState(null);
   const [expoPushToken, setExpoPushToken] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [image, setImage] = React.useState(null);
   const [region, setRegion] = React.useState({
     latitude: 0,
     longitude: -90.4324,
-    latitudeDelta: 0.0422,
-    longitudeDelta: 0.0121,
+    latitudeDelta: 0,
+    longitudeDelta: 0,
   });
   const [errorMsg, setErrorMsg] = React.useState(null);
 
@@ -55,7 +55,7 @@ const Profile = ({ navigation }) => {
         userId: user.uid,
         name,
         age,
-        gender,
+        type,
         image,
         pushToken: expoPushToken,
         region
@@ -154,10 +154,9 @@ const Profile = ({ navigation }) => {
       setRegion({
         longitude: location.coords.longitude,
         latitude: location.coords.latitude,
-        latitudeDelta: 0.0422,
-        longitudeDelta: 0.0121,
+        latitudeDelta: 0.00922,
+        longitudeDelta: 0.00421,
       });
-      // console.warn(location.coords.longitude);
       setLoading(false);
     })();
   }, []);
@@ -242,12 +241,9 @@ const Profile = ({ navigation }) => {
       <View style={styles.container}>
         <MapView
           provider="google"
-          initialRegion={region}
+          region={region}
           zoomEnabled={true}
           showsMyLocationButton={false}
-          focusable={true}
-          followsUserLocation={true}
-          liteMode={true}
           showsUserLocation={true}
           provider="google"
           style={styles.map}
@@ -262,6 +258,8 @@ const Profile = ({ navigation }) => {
               setRegion({
                 latitude: e.nativeEvent.coordinate.latitude,
                 longitude: e.nativeEvent.coordinate.longitude,
+                latitudeDelta: 0.00922,
+                longitudeDelta: 0.00421,
               });
             }}
           >
@@ -275,12 +273,12 @@ const Profile = ({ navigation }) => {
         <RadioInput
           key={index}
           title={options}
-          value={gender}
-          setValue={setGender}
+          value={type}
+          setValue={setType}
         />
       ))}
       <Button
-        disabled={!(formik.isValid && formik.dirty && gender != null)}
+        disabled={!(formik.isValid && formik.dirty && type != null)}
         onPress={formik.handleSubmit}
         title="Create"
       />
