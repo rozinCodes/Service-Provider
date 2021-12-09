@@ -8,18 +8,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { Dimensions, LogBox } from "react-native";
 import { firebase } from "../components/configuration/config";
 import { colors } from "../presets/colors";
-import Cart from "../screens/cart";
-import Checkout from "../screens/checkout";
-import Earphone from "../screens/earphone";
 import Headphone from "../screens/headphone";
 import Home from "../screens/home";
 import Login from "../screens/login";
 import Notification from "../screens/notification";
-import ProductDetails from "../screens/product-details";
 import SignUp from "../screens/signup";
 import SoundBox from "../screens/soundbox";
 import Profile from "../screens/profile";
-import Create from "../screens/create";
 
 const Tab = createBottomTabNavigator();
 const stack = createNativeStackNavigator();
@@ -109,7 +104,7 @@ function BottomTabNavigator() {
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <TabBarIcons fontFamily="Fontiso" name="headphone" color={color} />
+            <TabBarIcons fontFamily="Ionicons" name="list-outline" color={color} />
           ),
         }}
       />
@@ -120,41 +115,13 @@ function BottomTabNavigator() {
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <TabBarIcons
-              fontFamily="MaterialCommunityIcons"
-              name="boombox"
+              fontFamily="Ionicons"
+              name="settings"
               color={color}
             />
           ),
         }}
       />
-      {/* <Tab.Screen
-        name="Earphone"
-        component={EarphoneScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <TabBarIcons
-              fontFamily="MaterialCommunityIcons"
-              name="headphones"
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <TabBarIcons
-              fontFamily="MaterialCommunityIcons"
-              name="cart"
-              color={color}
-            />
-          ),
-        }}
-      /> */}
     </Tab.Navigator>
   );
 }
@@ -173,30 +140,16 @@ function HomeStackScreen() {
   return (
     <stack.Navigator screenOptions={{ headerShown: false }}>
       <stack.Screen name="Home" component={Home} />
-      <stack.Screen name="Profile" component={Profile} />
-      <stack.Screen name="Create" component={Create} />
-      <stack.Screen name="Notification" component={Notification} />
+      <stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
     </stack.Navigator>
   );
 }
 function AuthStackScreen() {
   return (
     <stack.Navigator>
-      <stack.Screen
-        name="Login"
-        component={Login}
-        options={{ headerShown: false }}
-      />
-      <stack.Screen
-        name="SignUp"
-        component={SignUp}
-        options={{ headerShown: false }}
-      />
-      <stack.Screen
-        name="PRofile"
-        component={Profile}
-        options={{ headerShown: false }}
-      />
+      <stack.Screen name="Login"component={Login} options={{ headerShown: false }} />
+      <stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
+      <stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
     </stack.Navigator>
   );
 }
@@ -204,7 +157,6 @@ function HeadphoneScreen() {
   return (
     <stack.Navigator screenOptions={{ headerShown: false }}>
       <stack.Screen name="Headphone " component={Headphone} />
-      <stack.Screen name="ProductDetails" component={ProductDetails} />
     </stack.Navigator>
   );
 }
@@ -212,23 +164,6 @@ function SoundboxScreen() {
   return (
     <stack.Navigator screenOptions={{ headerShown: false }}>
       <stack.Screen name="Earphone " component={SoundBox} />
-      <stack.Screen name="ProductDetails" component={ProductDetails} />
-    </stack.Navigator>
-  );
-}
-function EarphoneScreen() {
-  return (
-    <stack.Navigator screenOptions={{ headerShown: false }}>
-      <stack.Screen name="Soundbox " component={Earphone} />
-      <stack.Screen name="ProductDetails" component={ProductDetails} />
-    </stack.Navigator>
-  );
-}
-function CartScreen() {
-  return (
-    <stack.Navigator screenOptions={{ headerShown: false }}>
-      <stack.Screen name="Cart " component={Cart} />
-      <stack.Screen name="Checkout" component={Checkout} />
     </stack.Navigator>
   );
 }

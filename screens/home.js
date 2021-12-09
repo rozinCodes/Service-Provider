@@ -1,101 +1,81 @@
-import axios from "axios";
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import {
+  FlatList,
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  View,
+  TouchableOpacity,
+} from "react-native";
 import { showMessage } from "react-native-flash-message";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Button from "../components/button";
 import { firebase } from "../components/configuration/config";
+import { Button } from "react-native-paper";
+import { colors } from "../presets";
 
 const Home = ({ navigation }) => {
   const user = firebase.auth().currentUser;
-  const userRef = firebase.firestore().collection("users").doc('MUjeAeY5cab9N8slLYbJZbIvDxs1');
+  const userRef = firebase.firestore().collection("users");
+
   let [userInfo, setUserInfo] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
 
-  // const createPost = async () => {
-  //   userRef.get().then((doc) => {
-  //     const data = [];
-
-  //     if (doc.exists) {
-  //       const authorized = doc.get("authorized");
-  //       if (authorized == false) {
-  //         showMessage({
-  //           message: "you are not authorized yet",
-  //           type: "danger",
-  //         });
-  //       } else {
-  //         userRef.get().then((snapshot) => {
-  //           snapshot.forEach((doc) => {
-  //             data.push(doc.data);
-  //           });
-  //           // console.warn(data);
-  //         });
-  //         showMessage({
-  //           message: "Authorized",
-  //           type: "success",
-  //         });
-  //       }
-  //     } else {
-  //       showMessage({
-  //         message: "Document doesnt exist",
-  //         type: "warning",
-  //       });
-  //     }
-  //   });
-  // };
-
-  // React.useEffect(() => {
-  //   const baseUrl = "http://192.168.120.121:8080/thikthak/";
-  //   axios
-  //     .post("http://192.168.120.121:8080/thikthak/api/login", {
-  //       username: "system",
-  //       password: "system",
-  //     })
-  //     .then(function (response) {
-  //       // console.warn(response);
-  //     })
-  //     .catch(function (error) {
-  //       // console.warn(error);
-  //     });
-  // }, []);
+  React.useEffect(() => {
+    const users = [];
+    setLoading(true);
+    userRef
+      .where("status", "==", "pending")
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          users.push(doc.data());
+        });
+        setUserInfo(users);
+      });
+    setLoading(false);
+  }, []);
 
   const updatePost = async () => {
     let userData = {
-      id: user.uid,
-      email: "farisha",
+      userID: user.uid,
       status: "pending",
     };
 
     userRef.get().then((doc) => {
-      const userID = doc.get('id')
-      console.warn(userID)
+      const users = [];
+      users.push(doc.data());
+      setUserInfo(users);
+      const userID = doc.get("id");
       if (doc.exists && user.uid == userID) {
-            console.warn("already exists");
-            userRef
-              .update(userData)
-              .then(() => {
-                showMessage({
-                  message: "Success",
-                  description: "Your data was updated",
-                  type: "success",
-                });
-              })
-              .catch((err) => {
-                showMessage({
-                  message: "Error",
-                  description: err.message,
-                  type: "danger",
-                });
-              });
+        userRef
+          .doc(user.uid)
+          .update(userData)
+          .then(() => {
+            showMessage({
+              message: "Success",
+              description: "Your data was updated",
+              type: "success",
+            });
+          })
+          .catch((err) => {
+            showMessage({
+              message: "Error",
+              description: err.message,
+              type: "danger",
+              floating: true,
+              position: "bottom",
+            });
+          });
       } else {
         userRef
-        .set(userData)
-        .then(() => {
-          showMessage({
-            message: "Success",
-            description: "Your data was set",
-            type: "success",
+          .doc(user.uid)
+          .set(userData)
+          .then(() => {
+            showMessage({
+              message: "Success",
+              description: "Your data was set",
+              type: "success",
             });
-            console.warn("does not exist");
           })
           .catch((err) => {
             showMessage({
@@ -108,32 +88,124 @@ const Home = ({ navigation }) => {
     });
   };
 
+	const renderItem = ({ item }) => {
+		return (
+			<TouchableOpacity onPress={() => console.log('clicked')}>
+			<ScrollView>
+            <View style={{ justifyContent: "center", alignItems: "center" }}>
+              <Button
+                color="red"
+                mode="outlined"
+                onPress={() => firebase.auth().signOut()}
+              >
+                Navigate
+              </Button>
+                  <View
+                    style={{
+                      flexDirection: "column",
+                      width: "100%",
+                      borderWidth: 0.4,
+                      borderRadius: 12,
+                      marginBottom: 14,
+                      padding: 12,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontWeight: "bold",
+                        letterSpacing: 2,
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {item.name}
+                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Text>{item.email}</Text>
+                      <Text
+                        style={{
+                          marginRight: 30,
+                          textTransform: "capitalize",
+                          paddingHorizontal: 16,
+                          paddingVertical: 4,
+                          color: colors.white,
+                          backgroundColor: colors.lightred,
+                        }}
+                      >
+                        {item.status}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        marginTop: 16,
+                        justifyContent: "space-around",
+                      }}
+                    >
+                      <Button
+                        icon="check"
+                        key={item.id}
+                        color="green"
+                        mode="outlined"
+                        onPress={() => console.log("Pressed")}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        icon="skull-crossbones"
+                        key={item.id}
+                        color="red"
+                        mode="outlined"
+                        onPress={() => console.log("Pressed")}
+                      >
+                        Reject
+                      </Button>
+                    </View>
+                  </View>
+            </View>
+        </ScrollView>
+			</TouchableOpacity>
+		);
+	};
+  
   return (
     <SafeAreaView style={{ marginHorizontal: 20, flex: 1 }}>
-      <ScrollView>
+      
+      {loading ? (
+        <ActivityIndicator />
+      ) : (
+        
+        <>
         {user.uid == "MUjeAeY5cab9N8slLYbJZbIvDxs1" ? (
-          <View style={{ justifyContent: "center", alignItems: "center" }}>
-            <Text>You are admin</Text>
-            <Button
-              title="SignOut"
-              onPress={() => {
-                firebase.auth().signOut();
-              }}
-            />
-          </View>
-        ) : (
-          <>
-            <Button title="navigate" onPress={updatePost} />
-
-            <Button
-              title="SignOut"
-              onPress={() => {
-                firebase.auth().signOut();
-              }}
-            />
-          </>
+        <FlatList
+        showsHorizontalScrollIndicator={false}
+        data={userInfo}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.userID}
+        key={(item) => item.userID}
+        ItemSeparatorComponent={() => (
+          <View
+            style={{ height: 0.8, backgroundColor: colors.grey }}
+          />
         )}
-      </ScrollView>
+      /> ) : 
+      ( <>
+      <Text>Default user, you are!</Text>
+      <Button
+                color="red"
+                mode="outlined"
+                onPress={() => firebase.auth().signOut()}
+              >
+                Navigate
+              </Button>
+      </> 
+      )}
+        </>
+      )}
     </SafeAreaView>
   );
 };

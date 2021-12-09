@@ -4,7 +4,7 @@ export const colors = {
 	darkgrey: '#F1F1F1',
 	grey: '#ACBAC3',
 	lightgreen: '#419ebb',
-	primary: '#eda249',
+	primary: '#9479FF',
 	purple: '#6f2ed6',
 	darkorange: '#d14c32',
 	red: '#d83134',

@@ -5,14 +5,7 @@ import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { useFormik } from "formik";
 import React from "react";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import {Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { showMessage } from "react-native-flash-message";
 import MapView, { Callout, Marker } from "react-native-maps";
 import uuid from "react-native-uuid";
@@ -22,8 +15,9 @@ import { firebase } from "../components/configuration/config";
 import Input from "../components/input";
 import RadioInput from "../components/radioInput";
 
-const Profile = ({ navigation }) => {
+const Profile = () => {
   const OPTIONS = ["Technician", "User"];
+  const user = firebase.auth().currentUser;
   const [type, setType] = React.useState(null);
   const [expoPushToken, setExpoPushToken] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -50,7 +44,7 @@ const Profile = ({ navigation }) => {
     onSubmit: (values) => {
       const name = values.name.trim();
       const age = values.age.trim();
-      const user = firebase.auth().currentUser;
+
       const employeeData = {
         userId: user.uid,
         name,
@@ -243,7 +237,6 @@ const Profile = ({ navigation }) => {
           provider="google"
           region={region}
           zoomEnabled={true}
-          showsMyLocationButton={false}
           showsUserLocation={true}
           provider="google"
           style={styles.map}
@@ -269,14 +262,17 @@ const Profile = ({ navigation }) => {
           </Marker>
         </MapView>
       </View>
+      <View style = {{flexDirection: 'row', justifyContent: 'center', marginTop: 14}}>
+
       {OPTIONS.map((options, index) => (
         <RadioInput
-          key={index}
-          title={options}
-          value={type}
-          setValue={setType}
+        key={index}
+        title={options}
+        value={type}
+        setValue={setType}
         />
-      ))}
+        ))}
+        </View>
       <Button
         disabled={!(formik.isValid && formik.dirty && type != null)}
         onPress={formik.handleSubmit}

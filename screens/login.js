@@ -16,7 +16,8 @@ const Login = ({ navigation }) => {
 
 	const schema = Yup.object().shape({
 		email: Yup.string().trim().required('Please enter your email').email('Please enter a valid email'),
-		password: Yup.string().required('Please Enter your password').matches(/^(?=.{8,})/, 'Must Contain 8 Characters')
+		password: Yup.string().required('Please Enter your password')
+		// .matches(/^(?=.{8,})/, 'Must Contain 8 Characters')
 	});
 
 	const formik = useFormik({

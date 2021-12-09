@@ -31,7 +31,6 @@ const styles = StyleSheet.create({
 		height: 20,
 		width: 20,
 		marginRight: 12,
-		borderRadius: 10,
 		borderColor: '#ccc',
 		borderWidth: 1,
 		justifyContent: 'center',
@@ -40,7 +39,6 @@ const styles = StyleSheet.create({
 	innerCircle: {
 		height: 10,
 		width: 10,
-		borderRadius: 5,
 		borderColor: '#ccc',
 		borderWidth: 1
 	}
