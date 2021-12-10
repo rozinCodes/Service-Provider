@@ -3,14 +3,13 @@ import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Banner from '../components/banner';
 
-const SoundBox = () => {
+const Settings = () => {
 	return (
 		<SafeAreaView>
 			<ScrollView>
-				<Banner />
 			</ScrollView>
 		</SafeAreaView>
 	);
 };
 
-export default SoundBox;
+export default Settings;

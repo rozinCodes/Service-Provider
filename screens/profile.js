@@ -8,10 +8,12 @@ import React from "react";
 import {Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { showMessage } from "react-native-flash-message";
 import MapView, { Callout, Marker } from "react-native-maps";
+import { SafeAreaView } from "react-native-safe-area-context";
 import uuid from "react-native-uuid";
 import * as Yup from "yup";
 import Button from "../components/button";
 import { firebase } from "../components/configuration/config";
+import { Header } from "../components/header";
 import Input from "../components/input";
 import RadioInput from "../components/radioInput";
 
@@ -32,23 +34,23 @@ const Profile = () => {
 
   const schema = Yup.object().shape({
     name: Yup.string().trim().required("Please enter your name"),
-    age: Yup.string().trim().required("Please Enter your age").min(2),
+    phone: Yup.string().trim().required("Please Enter your mobile number").min(9),
   });
 
   const formik = useFormik({
     initialValues: {
       name: "",
-      age: "",
+      phone: "",
     },
     validationSchema: schema,
     onSubmit: (values) => {
       const name = values.name.trim();
-      const age = values.age.trim();
+      const phone = values.phone.trim();
 
       const employeeData = {
         userId: user.uid,
         name,
-        age,
+        phone: `+88${phone}`,
         type,
         image,
         pushToken: expoPushToken,
@@ -156,9 +158,11 @@ const Profile = () => {
   }, []);
 
   const nameError = formik.errors.name && formik.touched.name;
-  const ageError = formik.errors.age && formik.touched.age;
+  const phoneError = formik.errors.phone && formik.touched.phone;
 
   return (
+    <SafeAreaView style = {{marginBottom: 60}}>
+      <Header title='Post' backButton/>
     <ScrollView
       showsVerticalScrollIndicator={false}
       style={{
@@ -217,18 +221,18 @@ const Profile = () => {
           </Text>
         )}
         <Input
-          placeholder="Enter your age"
-          textTitle="Age"
-          textTitleColor={ageError && "#D16969"}
-          borderColor={ageError && "#D16969"}
-          borderWidth={ageError && 2}
-          onchangeText={formik.handleChange("age")}
+          placeholder="Enter your mobile number"
+          textTitle="Contact"
+          textTitleColor={phoneError && "#D16969"}
+          borderColor={phoneError && "#D16969"}
+          borderWidth={phoneError && 2}
+          onchangeText={formik.handleChange("phone")}
           customStyle={{ borderBottomWidth: 0 }}
-          onBlur={formik.handleBlur("age")}
+          onBlur={formik.handleBlur("phone")}
         />
-        {formik.errors.age && formik.touched.age && (
+        {formik.errors.phone && formik.touched.phone && (
           <Text style={{ color: "#D16969", marginTop: 8 }}>
-            {formik.errors.age}
+            {formik.errors.phone}
           </Text>
         )}
       </View>
@@ -279,6 +283,7 @@ const Profile = () => {
         title="Create"
       />
     </ScrollView>
+    </SafeAreaView>
   );
 };
 

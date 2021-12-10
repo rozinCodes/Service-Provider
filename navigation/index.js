@@ -8,13 +8,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { Dimensions, LogBox } from "react-native";
 import { firebase } from "../components/configuration/config";
 import { colors } from "../presets/colors";
-import Headphone from "../screens/headphone";
 import Home from "../screens/home";
 import Login from "../screens/login";
-import Notification from "../screens/notification";
 import SignUp from "../screens/signup";
-import SoundBox from "../screens/soundbox";
 import Profile from "../screens/profile";
+import History from "../screens/history";
+import Settings from "../screens/settings";
 
 const Tab = createBottomTabNavigator();
 const stack = createNativeStackNavigator();
@@ -72,7 +71,7 @@ const Navigation = () => {
 function BottomTabNavigator() {
   return (
     <Tab.Navigator
-      initialRouteName="Home "
+      initialRouteName="Home"
       screenOptions={{
         tabBarActiveTintColor: colors.purple,
         tabBarStyle: {
@@ -85,9 +84,10 @@ function BottomTabNavigator() {
       }}
     >
       <Tab.Screen
-        name="Home "
+        name="HomeTab"
         component={HomeStackScreen}
         options={{
+          headerShown: false,
           headerTitleAlign: "center",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcons
@@ -99,8 +99,8 @@ function BottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Headphone"
-        component={HeadphoneScreen}
+        name="History"
+        component={HistoryScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (
@@ -109,8 +109,8 @@ function BottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Soundbox"
-        component={SoundboxScreen}
+        name="Settings"
+        component={SettingsScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (
@@ -139,8 +139,8 @@ function TabBarIcons({ fontFamily, color, name }) {
 function HomeStackScreen() {
   return (
     <stack.Navigator screenOptions={{ headerShown: false }}>
-      <stack.Screen name="Home" component={Home} />
-      <stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+      <stack.Screen name="Home" component={Home}  />
+      <stack.Screen name="Profile" component={Profile} />
     </stack.Navigator>
   );
 }
@@ -153,17 +153,17 @@ function AuthStackScreen() {
     </stack.Navigator>
   );
 }
-function HeadphoneScreen() {
+function HistoryScreen() {
   return (
     <stack.Navigator screenOptions={{ headerShown: false }}>
-      <stack.Screen name="Headphone " component={Headphone} />
+      <stack.Screen name="History " component={History} />
     </stack.Navigator>
   );
 }
-function SoundboxScreen() {
+function SettingsScreen() {
   return (
     <stack.Navigator screenOptions={{ headerShown: false }}>
-      <stack.Screen name="Earphone " component={SoundBox} />
+      <stack.Screen name="Settings " component={Settings} />
     </stack.Navigator>
   );
 }

@@ -63,6 +63,7 @@ const SignUp = () => {
           let userData = {
             userID: response.user.uid,
             name: name,
+            creationTime: Date(),
             email: response.user.email,
             status: "pending",
           };
