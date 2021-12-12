@@ -1,7 +1,10 @@
+import Constants from "expo-constants";
+import * as Notifications from "expo-notifications";
 import { useFormik } from "formik";
 import LottieView from "lottie-react-native";
 import React from "react";
-import { Text, View } from "react-native";
+import { useState, useEffect } from "react";
+import { Dimensions, Text, View } from "react-native";
 import { showMessage } from "react-native-flash-message";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,14 +13,59 @@ import Button from "../components/button";
 import { firebase } from "../components/configuration/config";
 import { Header } from "../components/header";
 import Input from "../components/input";
+import RadioInput from "../components/radioInput";
 import { colors } from "../presets";
 
 const SignUp = () => {
-  const [loading, setLoading] = React.useState(false);
-  const [visible, setVisible] = React.useState(true);
+  const OPTIONS = ["Technician", "User"];
+  const [loading, setLoading] = useState(false);
+  const [type, setType] = useState(null);
+  const [visible, setVisible] = useState(true);
+  const [expoPushToken, setExpoPushToken] = useState("");
 
   const userRef = firebase.firestore().collection("users");
 
+  useEffect(() => {
+    setLoading(true);
+    registerForPushNotificationsAsync().then((token) => {
+      setExpoPushToken(token);
+      setLoading(false);
+    });
+  }, []);
+
+  //get token for push notification
+  async function registerForPushNotificationsAsync() {
+    let token;
+    if (Constants.isDevice) {
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== "granted") {
+        alert("Failed to get push token for push notification!");
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+    } else {
+      alert("Must use physical device for Push Notifications");
+    }
+
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
+
+    return token;
+  }
+
+  //yup validation schema
   const schema = Yup.object().shape({
     name: Yup.string()
       .trim()
@@ -27,22 +75,25 @@ const SignUp = () => {
       .trim()
       .required("Please enter your email")
       .email("Please enter a valid email"),
-    password: Yup.string().required("Please Enter your password"),
-    // .matches(/^(?=.{8,})/, "Must Contain at least 8 Characters")
-    // .matches(/^(?=.*[0-9])/, "Password must contain at least one number")
-    // .matches(
-    //   /^(?=.*[a-z])/,
-    //   "Password must contain at least one lowercase letter"
-    // )
-    // .matches(/^(?=.*[A-Z])/, "Password must contain one upper case letter")
-    // .matches(
-    //   /^(?=.*[!@#\$%\^&\*])/,
-    //   "Password must be contain at least one special character"
-    // ),
+    password: Yup.string()
+      .required("Please Enter your password")
+      .matches(/^(?=.{8,})/, "Must Contain at least 8 Characters")
+      .matches(/^(?=.*[0-9])/, "Password must contain at least one number")
+      .matches(
+        /^(?=.*[a-z])/,
+        "Password must contain at least one lowercase letter"
+      )
+      .matches(/^(?=.*[A-Z])/, "Password must contain one upper case letter")
+      .matches(
+        /^(?=.*[!@#\$%\^&\*])/,
+        "Password must be contain at least one special character"
+      ),
     confirm: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords do not match")
       .required("Please confirm your password"),
   });
+
+  //formik form handler
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -61,11 +112,13 @@ const SignUp = () => {
         .createUserWithEmailAndPassword(email, password)
         .then((response) => {
           let userData = {
-            userID: response.user.uid,
-            name: name,
+            userId: response.user.uid,
+            userType: type,
+            userName: name,
             creationTime: Date(),
             email: response.user.email,
-            status: "pending",
+            userStatus: "pending",
+            expoPushToken,
           };
           userRef
             .doc(response.user.uid)
@@ -73,7 +126,7 @@ const SignUp = () => {
             .then(() => {
               showMessage({
                 message: "Success",
-                description: "Your data was set",
+                description: "Your information has been sent to admin for approval",
                 type: "success",
               });
             })
@@ -175,7 +228,7 @@ const SignUp = () => {
             }}
           >
             * Must Contain at least 8 Characters, One Uppercase, One Lowercase,
-            One Number and One Special Case Character e.g - @iHateMyself1
+            One Number and One Special Case Character e.g - @reactNativ3
           </Text>
           <Input
             placeholder="Confirm your password"
@@ -195,10 +248,28 @@ const SignUp = () => {
               {formik.errors.confirm}
             </Text>
           )}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              marginTop: 14,
+            }}
+          >
+            {OPTIONS.map((options, index) => (
+              <RadioInput
+                key={index}
+                title={options}
+                value={type}
+                setValue={setType}
+              />
+            ))}
+          </View>
         </View>
         {loading ? (
           <LottieView
             style={{
+              height: 80,
+              width: 100,
               justifyContent: "center",
               alignItems: "center",
               alignSelf: "center",

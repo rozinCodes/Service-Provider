@@ -1,11 +1,19 @@
 import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import Constants from "expo-constants";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { useFormik } from "formik";
-import React from "react";
-import {Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useRef, useState } from "react";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { showMessage } from "react-native-flash-message";
 import MapView, { Callout, Marker } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,62 +23,74 @@ import Button from "../components/button";
 import { firebase } from "../components/configuration/config";
 import { Header } from "../components/header";
 import Input from "../components/input";
-import RadioInput from "../components/radioInput";
 
-const Profile = () => {
-  const OPTIONS = ["Technician", "User"];
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
+const Profile = ({ navigation }) => {
+  const usersRef = firebase.firestore().collection("posts");
+
+  const [beginTime, setBeginTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
+  const [beginMode, setBeginMode] = useState("date");
+  const [endMode, setEndMode] = useState("date");
+  const [beginShow, setBeginShow] = useState(false);
+  const [endShow, setEndShow] = useState(false);
+
+  const onBeginChange = (event, selectedDate) => {
+    const currentDate = selectedDate || beginTime;
+    setBeginShow(Platform.OS === "ios");
+    setBeginTime(currentDate);
+  };
+  const onEndChange = (event, selectedDate) => {
+    const currentDate = selectedDate || endTime;
+    setEndShow(Platform.OS === "ios");
+    setEndTime(currentDate);
+  };
+
+  const showBeginMode = (currentMode) => {
+    setBeginShow(true);
+    setBeginMode(currentMode);
+  };
+  const showEndMode = (currentMode) => {
+    setEndShow(true);
+    setEndMode(currentMode);
+  };
+
+  const showBeginPicker = () => {
+    showBeginMode("time");
+  };
+  const showEndPicker = () => {
+    showEndMode("time");
+  };
+
   const user = firebase.auth().currentUser;
-  const [type, setType] = React.useState(null);
-  const [expoPushToken, setExpoPushToken] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const [image, setImage] = React.useState(null);
-  const [region, setRegion] = React.useState({
+  const [expoPushToken, setExpoPushToken] = useState("");
+  const [notification, setNotification] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState(null);
+  const [region, setRegion] = useState({
     latitude: 0,
     longitude: -90.4324,
     latitudeDelta: 0,
     longitudeDelta: 0,
   });
-  const [errorMsg, setErrorMsg] = React.useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const notificationListener = useRef();
+  const responseListener = useRef();
 
   const schema = Yup.object().shape({
-    name: Yup.string().trim().required("Please enter your name"),
-    phone: Yup.string().trim().required("Please Enter your mobile number").min(9),
+    phone: Yup.string()
+      .trim()
+      .required("Please Enter your mobile number")
+      .min(11),
   });
 
-  const formik = useFormik({
-    initialValues: {
-      name: "",
-      phone: "",
-    },
-    validationSchema: schema,
-    onSubmit: (values) => {
-      const name = values.name.trim();
-      const phone = values.phone.trim();
-
-      const employeeData = {
-        userId: user.uid,
-        name,
-        phone: `+88${phone}`,
-        type,
-        image,
-        pushToken: expoPushToken,
-        region
-      };
-      const usersRef = firebase.firestore().collection("users");
-      setLoading(true);
-
-      usersRef.add(employeeData).catch((err) => {
-        showMessage({
-          message: "Oops",
-          description: err.message,
-          type: "danger",
-        });
-      });
-      setLoading(false);
-    },
-  });
-
-  //expo push notificaction
   async function registerForPushNotificationsAsync() {
     let token;
     if (Constants.isDevice) {
@@ -102,6 +122,65 @@ const Profile = () => {
 
     return token;
   }
+
+  const formik = useFormik({
+    initialValues: {
+      phone: "",
+    },
+    validationSchema: schema,
+    onSubmit: (values) => {
+      setLoading(true);
+      const phone = values.phone.trim();
+
+      const postData = {
+        name: user.displayName,
+        email: user.email,
+        userId: user.uid,
+        beginTime: beginTime.toLocaleTimeString(),
+        endTime: endTime.toLocaleTimeString(),
+        phone: phone,
+        image,
+        expoPushToken,
+        region,
+        userStatus: "Approved",
+      };
+
+      usersRef
+        .add(postData)
+        .then(async () => {
+          const message = {
+            to: expoPushToken,
+            sound: "default",
+            title: user.displayName,
+            body: "your post has been published successfully",
+          };
+
+          await fetch("https://exp.host/--/api/v2/push/send", {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Accept-encoding": "gzip, deflate",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(message),
+          });
+          showMessage({
+            message: "Success",
+            message: "your post has been sent to the admin for approval",
+            type: "success",
+          });
+          navigation.navigate("Home");
+        })
+        .catch((err) => {
+          showMessage({
+            message: "Oops",
+            description: err.message,
+            type: "danger",
+          });
+        });
+      setLoading(false);
+    },
+  });
 
   // Image picker function
   const pickImage = async () => {
@@ -138,6 +217,23 @@ const Profile = () => {
     setLoading(true);
     registerForPushNotificationsAsync().then((token) => {
       setExpoPushToken(token);
+      notificationListener.current =
+        Notifications.addNotificationReceivedListener((notification) => {
+          setNotification(notification);
+        });
+
+      responseListener.current =
+        Notifications.addNotificationResponseReceivedListener((response) => {
+          console.log(response);
+        });
+
+      setLoading(false);
+      return () => {
+        Notifications.removeNotificationSubscription(
+          notificationListener.current
+        );
+        Notifications.removeNotificationSubscription(responseListener.current);
+      };
     });
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -157,132 +253,143 @@ const Profile = () => {
     })();
   }, []);
 
-  const nameError = formik.errors.name && formik.touched.name;
   const phoneError = formik.errors.phone && formik.touched.phone;
 
   return (
-    <SafeAreaView style = {{marginBottom: 60}}>
-      <Header title='Post' backButton/>
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      style={{
-        marginHorizontal: 20,
-      }}
-    >
-      <View
+    <SafeAreaView style={{ marginBottom: 60 }}>
+      <Header title="Post" backButton />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
         style={{
-          marginBottom: 20,
+          marginHorizontal: 20,
         }}
       >
-        <Pressable
+        <View
           style={{
-            height: 120,
-            width: 120,
-            borderRadius: 60,
-            marginBottom: 40,
-            backgroundColor: "dodgerblue",
-            justifyContent: "center",
-            alignSelf: "center",
-            alignItems: "center",
+            marginBottom: 20,
           }}
-          onPress={pickImage}
         >
-          {image ? (
-            <Image
-              source={{ uri: image }}
-              style={{ height: "100%", width: "100%", resizeMode: "cover" }}
-            />
-          ) : (
+          <Pressable
+            style={{
+              height: 80,
+              width: 80,
+              borderRadius: 40,
+              marginBottom: 20,
+              backgroundColor: "dodgerblue",
+              justifyContent: "center",
+              alignSelf: "center",
+              alignItems: "center",
+            }}
+            onPress={pickImage}
+          >
+            {image ? (
+              <Image
+                source={{ uri: image }}
+                style={{ height: "100%", width: "100%", resizeMode: "cover" }}
+              />
+            ) : (
+              <View
+                style={{
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Ionicons name="image" size={20} color="white" />
+                <Text style={{ color: "white", fontSize: 10 }}>Add Image</Text>
+              </View>
+            )}
+          </Pressable>
+          <View>
             <View
-              style={{
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
+              style={{ flexDirection: "row", justifyContent: "space-around" }}
+            >
+              <Text style={{ fontWeight: "bold" }}>
+                {beginTime.toLocaleTimeString()}
+              </Text>
+              <Text style={{ fontWeight: "bold" }}>
+                {endTime.toLocaleTimeString()}
+              </Text>
+            </View>
+            <View
+              style={{ justifyContent: "space-between", flexDirection: "row" }}
+            >
+              <Button onPress={showBeginPicker} title="Active time start" />
+              <Button onPress={showEndPicker} title="Active time end" />
+            </View>
+            {beginShow && (
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={beginTime}
+                mode={beginMode}
+                is24Hour={true}
+                display="default"
+                onChange={onBeginChange}
+              />
+            )}
+            {endShow && (
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={endTime}
+                mode={endMode}
+                is24Hour={true}
+                display="default"
+                onChange={onEndChange}
+              />
+            )}
+          </View>
+          <Input
+            placeholder="Enter your mobile number"
+            textTitle="Contact"
+            textTitleColor={phoneError && "#D16969"}
+            borderColor={phoneError && "#D16969"}
+            borderWidth={phoneError && 2}
+            onchangeText={formik.handleChange("phone")}
+            customStyle={{ borderBottomWidth: 0 }}
+            onBlur={formik.handleBlur("phone")}
+          />
+          {formik.errors.phone && formik.touched.phone && (
+            <Text style={{ color: "#D16969", marginTop: 8 }}>
+              {formik.errors.phone}
+            </Text>
+          )}
+        </View>
+        <View style={styles.container}>
+          <MapView
+            provider="google"
+            region={region}
+            zoomEnabled={true}
+            showsUserLocation={true}
+            provider="google"
+            style={styles.map}
+          >
+            <Marker
+              coordinate={{
+                longitude: region.longitude,
+                latitude: region.latitude,
+              }}
+              draggable={true}
+              onDragEnd={(e) => {
+                setRegion({
+                  latitude: e.nativeEvent.coordinate.latitude,
+                  longitude: e.nativeEvent.coordinate.longitude,
+                  latitudeDelta: 0.00922,
+                  longitudeDelta: 0.00421,
+                });
               }}
             >
-              <Ionicons name="image" size={40} color="white" />
-              <Text style={{ color: "white" }}>Add Image</Text>
-            </View>
-          )}
-        </Pressable>
-        <Input
-          placeholder="Enter your name"
-          textTitle="Name"
-          textTitleColor={nameError && "#D16969"}
-          borderColor={nameError && "#D16969"}
-          borderWidth={nameError && 2}
-          onchangeText={formik.handleChange("name")}
-          customStyle={{ borderBottomWidth: 0 }}
-          onBlur={formik.handleBlur("name")}
-        />
-        {formik.errors.name && formik.touched.name && (
-          <Text style={{ color: "#D16969", marginVertical: 8 }}>
-            {formik.errors.name}
-          </Text>
-        )}
-        <Input
-          placeholder="Enter your mobile number"
-          textTitle="Contact"
-          textTitleColor={phoneError && "#D16969"}
-          borderColor={phoneError && "#D16969"}
-          borderWidth={phoneError && 2}
-          onchangeText={formik.handleChange("phone")}
-          customStyle={{ borderBottomWidth: 0 }}
-          onBlur={formik.handleBlur("phone")}
-        />
-        {formik.errors.phone && formik.touched.phone && (
-          <Text style={{ color: "#D16969", marginTop: 8 }}>
-            {formik.errors.phone}
-          </Text>
-        )}
-      </View>
-      <View style={styles.container}>
-        <MapView
-          provider="google"
-          region={region}
-          zoomEnabled={true}
-          showsUserLocation={true}
-          provider="google"
-          style={styles.map}
-        >
-          <Marker
-            coordinate={{
-              longitude: region.longitude,
-              latitude: region.latitude,
-            }}
-            draggable={true}
-            onDragEnd={(e) => {
-              setRegion({
-                latitude: e.nativeEvent.coordinate.latitude,
-                longitude: e.nativeEvent.coordinate.longitude,
-                latitudeDelta: 0.00922,
-                longitudeDelta: 0.00421,
-              });
-            }}
-          >
-            <Callout>
-              <Text>Current Location</Text>
-            </Callout>
-          </Marker>
-        </MapView>
-      </View>
-      <View style = {{flexDirection: 'row', justifyContent: 'center', marginTop: 14}}>
-
-      {OPTIONS.map((options, index) => (
-        <RadioInput
-        key={index}
-        title={options}
-        value={type}
-        setValue={setType}
-        />
-        ))}
+              <Callout>
+                <Text>Current Location</Text>
+              </Callout>
+            </Marker>
+          </MapView>
         </View>
-      <Button
-        disabled={!(formik.isValid && formik.dirty && type != null)}
-        onPress={formik.handleSubmit}
-        title="Create"
-      />
-    </ScrollView>
+        <Button
+          disabled={!(formik.isValid && formik.dirty)}
+          onPress={formik.handleSubmit}
+          title="Create"
+        />
+      </ScrollView>
     </SafeAreaView>
   );
 };

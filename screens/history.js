@@ -1,10 +1,11 @@
 import React from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    ScrollView,
-    Text,
-    View
+  ActivityIndicator,
+  FlatList,
+  Image,
+  ScrollView,
+  Text,
+  View,
 } from "react-native";
 import { Button } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,12 +20,12 @@ const History = () => {
   const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
-    const users = [];
     setLoading(true);
     userRef
-      .where("status", "!=", "pending")
+      .where("userStatus", "!=", "pending")
       .get()
       .then((snapshot) => {
+        const users = [];
         snapshot.forEach((doc) => {
           users.push(doc.data());
         });
@@ -56,7 +57,8 @@ const History = () => {
               >
                 {item.name}
               </Text>
-              {/* {item.rejectionTime ? <Text>{item.rejectionTime}</Text> : <Text>{item.approvalTime}</Text>} */}
+              <Text style={{ fontWeight: "bold" }}>Account Created: {item.creationTime}</Text>
+              <Text style={{ fontWeight: "bold" }}>Approval Completed: {item.approvalTime}</Text>
               <View
                 style={{
                   flexDirection: "row",
@@ -64,7 +66,7 @@ const History = () => {
                 }}
               >
                 <Text>{item.email}</Text>
-                
+
                 <Text
                   style={{
                     marginRight: 30,
@@ -73,14 +75,12 @@ const History = () => {
                     paddingVertical: 4,
                     color: colors.white,
                     backgroundColor:
-                      item.status == "pending"
+                      item.userStatus == "Rejected"
                         ? colors.lightred
-                        : item.status == "Accepted"
-                        ? colors.green
-                        : colors.grey,
+                        :colors.green
                   }}
                 >
-                  {item.status}
+                  {item.userStatus}
                 </Text>
               </View>
             </View>
@@ -96,26 +96,38 @@ const History = () => {
         <ActivityIndicator />
       ) : (
         <>
-          {user.uid == "MUjeAeY5cab9N8slLYbJZbIvDxs1" ? (
-            <FlatList
-              showsHorizontalScrollIndicator={false}
-              data={userInfo}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.userID}
-              key={(item) => item.userID}
-            />
-          ) : (
             <>
-              <Text>Default user, you are!</Text>
-              <Button
-                color="red"
-                mode="outlined"
-                onPress={() => firebase.auth().signOut()}
-              >
-                Navigate
-              </Button>
+              {userInfo.length === 0 ? (
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ fontWeight: "bold" }}>
+                    Nothing here
+                  </Text>
+                  <Image
+                    source={require("../assets/empty.png")}
+                    style={{
+                      width: "100%",
+                      height: 250,
+                      marginTop: 20,
+                      resizeMode: "contain",
+                    }}
+                  />
+                </View>
+              ) : (
+                <FlatList
+                  showsHorizontalScrollIndicator={false}
+                  data={userInfo}
+                  renderItem={renderItem}
+                  keyExtractor={(item) => item.userId}
+                  key={(item) => item.userId}
+                />
+              )}
             </>
-          )}
         </>
       )}
     </SafeAreaView>

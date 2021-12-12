@@ -14,6 +14,7 @@ import SignUp from "../screens/signup";
 import Profile from "../screens/profile";
 import History from "../screens/history";
 import Settings from "../screens/settings";
+import ChatScreen from "../screens/chat";
 
 const Tab = createBottomTabNavigator();
 const stack = createNativeStackNavigator();
@@ -26,7 +27,7 @@ const THEME = {
   },
 };
 
-LogBox.ignoreLogs(["Setting a timer", "AsyncStorage"]);
+LogBox.ignoreLogs(["Setting a timer", "AsyncStorage", "Possible", "Can't"]);
 
 const Navigation = () => {
   const [user, setUser] = useState(false);
@@ -69,6 +70,8 @@ const Navigation = () => {
 };
 
 function BottomTabNavigator() {
+  const currentUser = firebase.auth().currentUser;
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -98,27 +101,44 @@ function BottomTabNavigator() {
           ),
         }}
       />
-      <Tab.Screen
-        name="History"
-        component={HistoryScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <TabBarIcons fontFamily="Ionicons" name="list-outline" color={color} />
-          ),
-        }}
-      />
+      {currentUser.uid == "MUjeAeY5cab9N8slLYbJZbIvDxs1" ? (
+        <Tab.Screen
+          name="History"
+          component={HistoryScreen}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ color }) => (
+              <TabBarIcons
+                fontFamily="Ionicons"
+                name="list-outline"
+                color={color}
+              />
+            ),
+          }}
+        />): (
+          <Tab.Screen
+          name="ChatScreen"
+          component={ChatScreen}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ color }) => (
+              <TabBarIcons
+                fontFamily="Ionicons"
+                name="list-outline"
+                color={color}
+              />
+            ),
+          }}
+        />
+        )}
+
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <TabBarIcons
-              fontFamily="Ionicons"
-              name="settings"
-              color={color}
-            />
+            <TabBarIcons fontFamily="Ionicons" name="settings" color={color} />
           ),
         }}
       />
@@ -139,7 +159,7 @@ function TabBarIcons({ fontFamily, color, name }) {
 function HomeStackScreen() {
   return (
     <stack.Navigator screenOptions={{ headerShown: false }}>
-      <stack.Screen name="Home" component={Home}  />
+      <stack.Screen name="Home" component={Home} />
       <stack.Screen name="Profile" component={Profile} />
     </stack.Navigator>
   );
@@ -147,9 +167,16 @@ function HomeStackScreen() {
 function AuthStackScreen() {
   return (
     <stack.Navigator>
-      <stack.Screen name="Login"component={Login} options={{ headerShown: false }} />
-      <stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
-      <stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+      <stack.Screen
+        name="Login"
+        component={Login}
+        options={{ headerShown: false }}
+      />
+      <stack.Screen
+        name="SignUp"
+        component={SignUp}
+        options={{ headerShown: false }}
+      />
     </stack.Navigator>
   );
 }
