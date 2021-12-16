@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as Notifications from "expo-notifications";
 import LottieView from "lottie-react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, LogBox } from "react-native";
+import { Dimensions, LogBox, View } from "react-native";
 import { firebase } from "../components/configuration/config";
 import { colors } from "../presets/colors";
 import Home from "../screens/home";
@@ -53,12 +53,16 @@ const Navigation = () => {
 
   if (loading) {
     return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <LottieView
-        style={{ flex: 1, width: Dimensions.get("window").height / 4 }}
-        resizeMode="contain"
+        style={{
+          height: 200,
+          width: 100,
+        }}
         source={require("../assets/loading.json")}
         autoPlay={true}
       />
+    </View>
     );
   }
 

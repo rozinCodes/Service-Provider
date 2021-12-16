@@ -24,6 +24,7 @@ const SignUp = () => {
   const [expoPushToken, setExpoPushToken] = useState("");
 
   const userRef = firebase.firestore().collection("users");
+  const pushRef = firebase.firestore().collection("notificationDevices");
 
   useEffect(() => {
     setLoading(true);
@@ -137,6 +138,9 @@ const SignUp = () => {
                 type: "danger",
               });
             });
+            pushRef
+            .doc(response.user.uid)
+            .set({expoPushToken}, {merge: true})
           setLoading(false);
         })
         .catch((err) => {
@@ -153,6 +157,21 @@ const SignUp = () => {
   const emailError = formik.errors.email && formik.touched.email;
   const passwordError = formik.errors.password && formik.touched.password;
   const confirmError = formik.errors.confirm && formik.touched.confirm;
+
+  const Loading = () => {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <LottieView
+        style={{
+          height: 200,
+          width: 100,
+        }}
+        source={require("../assets/loading.json")}
+        autoPlay={true}
+      />
+    </View>
+    )
+  };
 
   return (
     <SafeAreaView>
@@ -266,17 +285,7 @@ const SignUp = () => {
           </View>
         </View>
         {loading ? (
-          <LottieView
-            style={{
-              height: 80,
-              width: 100,
-              justifyContent: "center",
-              alignItems: "center",
-              alignSelf: "center",
-            }}
-            source={require("../assets/loading.json")}
-            autoPlay={true}
-          />
+           <Loading/>
         ) : (
           <Button
             disabled={!(formik.isValid && formik.dirty)}

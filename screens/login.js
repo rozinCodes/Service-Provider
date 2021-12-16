@@ -15,14 +15,15 @@ const Login = ({ navigation }) => {
   const [visible, setVisible] = React.useState(true);
 
   const schema = Yup.object().shape({
-	  email: Yup.string()
+    email: Yup.string()
       .trim()
       .required("Please enter your email")
       .email("Please enter a valid email"),
-	  password: Yup.string().required("Please Enter your password")
-	  .matches(/^(?=.{8,})/, 'Must Contain 8 Characters')
-	});
-	
+    password: Yup.string()
+      .required("Please Enter your password")
+      .matches(/^(?=.{8,})/, "Must Contain 8 Characters"),
+  });
+
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -52,6 +53,21 @@ const Login = ({ navigation }) => {
   });
   const emailError = formik.errors.email && formik.touched.email;
   const passwordError = formik.errors.password && formik.touched.password;
+
+  const Loading = () => {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <LottieView
+        style={{
+          height: 200,
+          width: 100,
+        }}
+        source={require("../assets/loading.json")}
+        autoPlay={true}
+      />
+    </View>
+    )
+  };
 
   return (
     <SafeAreaView>
@@ -105,17 +121,7 @@ const Login = ({ navigation }) => {
             </Text>
           )}
           {loading ? (
-            <LottieView
-              style={{
-				height: 80,
-				width: 100,
-                justifyContent: "center",
-                alignItems: "center",
-                alignSelf: "center",
-              }}
-              source={require("../assets/loading.json")}
-              autoPlay={true}
-            />
+            <Loading/>
           ) : (
             <Button
               disabled={!(formik.isValid && formik.dirty)}
