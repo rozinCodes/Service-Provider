@@ -1,4 +1,5 @@
-import React from "react";
+import LottieView from "lottie-react-native";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -7,31 +8,29 @@ import {
   Text,
   View,
 } from "react-native";
+import { showMessage } from "react-native-flash-message";
 import { Button } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { firebase } from "../components/configuration/config";
 import { colors } from "../presets";
 
 const History = () => {
-  const user = firebase.auth().currentUser;
   const userRef = firebase.firestore().collection("users");
 
-  let [userInfo, setUserInfo] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
+  let [userInfo, setUserInfo] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setLoading(true);
-    userRef
-      .where("userStatus", "!=", "pending")
-      .get()
-      .then((snapshot) => {
+    userRef.where("userStatus", "!=", "pending")
+    .onSnapshot((snapshot) => {
         const users = [];
         snapshot.forEach((doc) => {
           users.push(doc.data());
         });
         setUserInfo(users);
-      });
-    setLoading(false);
+        setLoading(false);
+      })
   }, []);
 
   const renderItem = ({ item }) => {
@@ -57,8 +56,12 @@ const History = () => {
               >
                 {item.name}
               </Text>
-              <Text style={{ fontWeight: "bold" }}>Account Created: {item.creationTime}</Text>
-              <Text style={{ fontWeight: "bold" }}>Approval Completed: {item.approvalTime}</Text>
+              <Text style={{ fontWeight: "bold" }}>
+                Account Created: {item.creationTime}
+              </Text>
+              <Text style={{ fontWeight: "bold" }}>
+                Approval Completed: {item.approvalTime}
+              </Text>
               <View
                 style={{
                   flexDirection: "row",
@@ -77,7 +80,7 @@ const History = () => {
                     backgroundColor:
                       item.userStatus == "Rejected"
                         ? colors.lightred
-                        :colors.green
+                        : colors.green,
                   }}
                 >
                   {item.userStatus}
@@ -90,44 +93,56 @@ const History = () => {
     );
   };
 
+  const Loading = () => {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <LottieView
+          style={{
+            height: 200,
+            width: 100,
+          }}
+          source={require("../assets/loading.json")}
+          autoPlay={true}
+          loop={true}
+        />
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={{ marginHorizontal: 20, flex: 1 }}>
       {loading ? (
-        <ActivityIndicator />
+        <Loading />
       ) : (
         <>
-            <>
-              {userInfo.length === 0 ? (
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ fontWeight: "bold" }}>
-                    Nothing here
-                  </Text>
-                  <Image
-                    source={require("../assets/empty.png")}
-                    style={{
-                      width: "100%",
-                      height: 250,
-                      marginTop: 20,
-                      resizeMode: "contain",
-                    }}
-                  />
-                </View>
-              ) : (
-                <FlatList
-                  showsHorizontalScrollIndicator={false}
-                  data={userInfo}
-                  renderItem={renderItem}
-                  keyExtractor={(item) => item.userId}
-                  key={(item) => item.userId}
-                />
-              )}
-            </>
+          {userInfo.length === 0 ? (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ fontWeight: "bold" }}>Nothing here</Text>
+              <Image
+                source={require("../assets/empty.png")}
+                style={{
+                  width: "100%",
+                  height: 250,
+                  marginTop: 20,
+                  resizeMode: "contain",
+                }}
+              />
+            </View>
+          ) : (
+            <FlatList
+              showsHorizontalScrollIndicator={false}
+              data={userInfo}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.userId}
+              key={(item) => item.userId}
+            />
+          )}
         </>
       )}
     </SafeAreaView>

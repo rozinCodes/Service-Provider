@@ -314,6 +314,7 @@ const Home = ({ navigation }) => {
           }}
           source={require("../assets/loading.json")}
           autoPlay={true}
+          loop={true}
         />
       </View>
     );
@@ -329,33 +330,8 @@ const Home = ({ navigation }) => {
       <>
         {user.uid == "MUjeAeY5cab9N8slLYbJZbIvDxs1" ? (
           <>
-            {userInfo.length === 0 ? (
-              <>
-                {loading ? (
-                  <Loading />
-                ) : (
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text style={{ fontWeight: "bold" }}>
-                      Nothing to approve!
-                    </Text>
-                    <Image
-                      source={require("../assets/empty.png")}
-                      style={{
-                        width: "100%",
-                        height: 250,
-                        marginTop: 20,
-                        resizeMode: "contain",
-                      }}
-                    />
-                  </View>
-                )}
-              </>
+            {loading ? (
+              <Loading />
             ) : (
               <FlatList
                 showsHorizontalScrollIndicator={false}
@@ -369,10 +345,14 @@ const Home = ({ navigation }) => {
         ) : (
           <>
             {postInfo.length === 0 ? (
-              <>
-                {loading ? (
-                  <Loading />
-                ) : (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                {userInfo.map((item) => item.userStatus) == "Approved" ? (
                   <View
                     style={{
                       flex: 1,
@@ -380,61 +360,57 @@ const Home = ({ navigation }) => {
                       alignItems: "center",
                     }}
                   >
-                    {userInfo.map((item) => item.userStatus) == "Approved" ? (
-                      <>
-                        {loading ? (
-                          <Loading />
-                        ) : (
-                          <View style = {{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                            <Text
-                              style={{
-                                fontWeight: "bold",
-                                textAlign: "center",
-                                color: colors.green,
-                              }}
-                            >
-                              {`Congrats! your account has been approved! \n You can now create posts`}
-                            </Text>
-                            
-                            <LottieView
-                              style={{
-                                height: 200,
-                              }}
-                              source={require("../assets/approved.json")}
-                              autoPlay={true}
-                              />
-                              </View>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <View>
-                          <Text style={{ fontWeight: "bold" }}>
-                            Your account is under approval process
-                          </Text>
-                          <Image
-                            source={require("../assets/empty.png")}
-                            style={{
-                              width: "100%",
-                              height: 250,
-                              marginTop: 20,
-                              resizeMode: "contain",
-                            }}
-                          />
-                        </View>
-                      </>
-                    )}
+                    <Text
+                      style={{
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        color: colors.green,
+                      }}
+                    >
+                      {`Congrats! your account has been approved! \n You can now create posts`}
+                    </Text>
+
+                    <LottieView
+                      style={{
+                        height: 200,
+                      }}
+                      source={require("../assets/approved.json")}
+                      autoPlay={true}
+                    />
                   </View>
+                ) : (
+                  <>
+                    <View>
+                      <Text style={{ fontWeight: "bold" }}>
+                        Your account is under approval process
+                      </Text>
+                      <Image
+                        source={require("../assets/empty.png")}
+                        style={{
+                          width: "100%",
+                          height: 250,
+                          marginTop: 20,
+                          resizeMode: "contain",
+                        }}
+                      />
+                    </View>
+                  </>
+                )}
+              </View>
+            ) : (
+              <>
+                {loading ? (
+                  <Loading />
+                ) : (
+                  <FlatList
+                    showsHorizontalScrollIndicator={false}
+                    data={postInfo}
+                    renderItem={renderPosts}
+                    keyExtractor={(item) => item.userId}
+                    key={(item) => item.userId}
+                  />
                 )}
               </>
-            ) : (
-              <FlatList
-                showsHorizontalScrollIndicator={false}
-                data={postInfo}
-                renderItem={renderPosts}
-                keyExtractor={(item) => item.userId}
-                key={(item) => item.userId}
-              />
             )}
           </>
         )}
