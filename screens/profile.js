@@ -1,33 +1,31 @@
-import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import Constants from 'expo-constants';
-import * as ImagePicker from 'expo-image-picker';
-import * as Location from 'expo-location';
-import * as Notifications from 'expo-notifications';
-import { useFormik } from 'formik';
-import React, { useEffect, useRef, useState } from 'react';
-import LottieView from 'lottie-react-native';
+import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import Constants from "expo-constants";
+import * as ImagePicker from "expo-image-picker";
+import * as Location from "expo-location";
+import * as Notifications from "expo-notifications";
+import { useFormik } from "formik";
+import LottieView from "lottie-react-native";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Image,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
-} from 'react-native';
-import { showMessage } from 'react-native-flash-message';
-import MapView, { Callout, Marker } from 'react-native-maps';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import uuid from 'react-native-uuid';
-import * as Yup from 'yup';
-import Button from '../components/button';
-import { firebase } from '../components/configuration/config';
-import { Header } from '../components/header';
-import Input from '../components/input';
-import PhoneInput from 'react-native-phone-number-input';
-import { TouchableOpacity } from 'react-native';
-import { colors } from '../presets';
-import { color } from 'react-native-indicator/lib/const';
+} from "react-native";
+import MapView, { Callout, Marker } from "react-native-maps";
+import PhoneInput from "react-native-phone-number-input";
+import { SafeAreaView } from "react-native-safe-area-context";
+import uuid from "react-native-uuid";
+import * as Yup from "yup";
+import Button from "../components/button";
+import { firebase } from "../components/configuration/config";
+import { Header } from "../components/header";
+import { colors } from "../presets";
+import MapViewDirections from "react-native-maps-directions";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -38,28 +36,28 @@ Notifications.setNotificationHandler({
 });
 
 const Profile = ({ navigation }) => {
-  const postRef = firebase.firestore().collection('posts');
+  const postRef = firebase.firestore().collection("posts");
 
   const [beginTime, setBeginTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
-  const [beginMode, setBeginMode] = useState('date');
-  const [endMode, setEndMode] = useState('date');
+  const [beginMode, setBeginMode] = useState("date");
+  const [endMode, setEndMode] = useState("date");
   const [beginShow, setBeginShow] = useState(false);
   const [endShow, setEndShow] = useState(false);
 
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
   const phoneInput = useRef(null);
   const [showMessage, setShowMessage] = useState(false);
   const [valid, setValid] = useState(false);
 
   const onBeginChange = (event, selectedDate) => {
     const currentDate = selectedDate || beginTime;
-    setBeginShow(Platform.OS === 'ios');
+    setBeginShow(Platform.OS === "ios");
     setBeginTime(currentDate);
   };
   const onEndChange = (event, selectedDate) => {
     const currentDate = selectedDate || endTime;
-    setEndShow(Platform.OS === 'ios');
+    setEndShow(Platform.OS === "ios");
     setEndTime(currentDate);
   };
 
@@ -73,14 +71,29 @@ const Profile = ({ navigation }) => {
   };
 
   const showBeginPicker = () => {
-    showBeginMode('time');
+    showBeginMode("time");
   };
   const showEndPicker = () => {
-    showEndMode('time');
+    showEndMode("time");
   };
 
+  const coordinates = [
+    {
+      latitude: 30.7046,
+      longitude: 76.7179,
+      latitudeDelta: 0.00922,
+      longitudeDelta: 0.00421,
+    },
+    {
+      latitude: 30.7333,
+      longitude: 76.7794,
+      latitudeDelta: 0.00922,
+      longitudeDelta: 0.00421,
+    },
+  ];
+
   const user = firebase.auth().currentUser;
-  const [expoPushToken, setExpoPushToken] = useState('');
+  const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState(false);
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
@@ -102,25 +115,25 @@ const Profile = ({ navigation }) => {
       const { status: existingStatus } =
         await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
-      if (existingStatus !== 'granted') {
+      if (existingStatus !== "granted") {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
-      if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
+      if (finalStatus !== "granted") {
+        alert("Failed to get push token for push notification!");
         return;
       }
       token = (await Notifications.getExpoPushTokenAsync()).data;
     } else {
-      alert('Must use physical device for Push Notifications');
+      alert("Must use physical device for Push Notifications");
     }
 
-    if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
+        lightColor: "#FF231F7C",
       });
     }
     // push notification function ends here
@@ -130,7 +143,7 @@ const Profile = ({ navigation }) => {
 
   const formik = useFormik({
     initialValues: {
-      phone: '',
+      phone: "",
     },
     // validationSchema: schema,
     onSubmit: (values) => {
@@ -150,7 +163,7 @@ const Profile = ({ navigation }) => {
         phone: value,
         image,
         expoPushToken,
-        userStatus: 'Approved',
+        userStatus: "Approved",
       };
 
       postRef
@@ -159,32 +172,32 @@ const Profile = ({ navigation }) => {
         .then(async () => {
           const message = {
             to: expoPushToken,
-            sound: 'default',
-            title: 'user.displayName',
-            body: 'your post has been published successfully',
+            sound: "default",
+            title: "user.displayName",
+            body: "your post has been published successfully",
           };
 
-          await fetch('https://exp.host/--/api/v2/push/send', {
-            method: 'POST',
+          await fetch("https://exp.host/--/api/v2/push/send", {
+            method: "POST",
             headers: {
-              Accept: 'application/json',
-              'Accept-encoding': 'gzip, deflate',
-              'Content-Type': 'application/json',
+              Accept: "application/json",
+              "Accept-encoding": "gzip, deflate",
+              "Content-Type": "application/json",
             },
             body: JSON.stringify(message),
           });
           showMessage({
-            message: 'Success',
-            message: 'your post has been created successfully',
-            type: 'success',
+            message: "Success",
+            message: "your post has been created successfully",
+            type: "success",
           });
-          navigation.navigate('Home');
+          navigation.navigate("Home");
         })
         .catch((err) => {
           showMessage({
-            message: 'Oops',
+            message: "Oops",
             description: err.message,
-            type: 'danger',
+            type: "danger",
           });
         });
       setLoading(false);
@@ -206,10 +219,10 @@ const Profile = ({ navigation }) => {
           resolve(xhr.response);
         };
         xhr.onerror = function () {
-          reject(new TypeError('Network request failed'));
+          reject(new TypeError("Network request failed"));
         };
-        xhr.responseType = 'blob';
-        xhr.open('GET', result.uri, true);
+        xhr.responseType = "blob";
+        xhr.open("GET", result.uri, true);
         xhr.send(null);
       });
 
@@ -224,20 +237,24 @@ const Profile = ({ navigation }) => {
 
   useEffect(() => {
     setLoading(true);
-    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+    registerForPushNotificationsAsync().then((token) =>
+      setExpoPushToken(token)
+    );
 
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      setNotification(notification);
-    });
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        setNotification(notification);
+      });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response);
-    });
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log(response);
+      });
 
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
         return;
       }
 
@@ -262,13 +279,13 @@ const Profile = ({ navigation }) => {
 
   const Loading = () => {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <LottieView
           style={{
             height: 200,
             width: 100,
           }}
-          source={require('../assets/loading.json')}
+          source={require("../assets/loading.json")}
           autoPlay={true}
         />
       </View>
@@ -277,7 +294,7 @@ const Profile = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ marginBottom: 60 }}>
-      <Header title='Post' backButton />
+      <Header title="Post" backButton />
       {loading ? (
         <Loading />
       ) : (
@@ -298,28 +315,28 @@ const Profile = ({ navigation }) => {
                 width: 80,
                 borderRadius: 40,
                 marginBottom: 20,
-                backgroundColor: 'dodgerblue',
-                justifyContent: 'center',
-                alignSelf: 'center',
-                alignItems: 'center',
+                backgroundColor: "dodgerblue",
+                justifyContent: "center",
+                alignSelf: "center",
+                alignItems: "center",
               }}
               onPress={pickImage}
             >
               {image ? (
                 <Image
                   source={{ uri: image }}
-                  style={{ height: '100%', width: '100%', resizeMode: 'cover' }}
+                  style={{ height: "100%", width: "100%", resizeMode: "cover" }}
                 />
               ) : (
                 <View
                   style={{
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
                 >
-                  <Ionicons name='image' size={20} color='white' />
-                  <Text style={{ color: 'white', fontSize: 10 }}>
+                  <Ionicons name="image" size={20} color="white" />
+                  <Text style={{ color: "white", fontSize: 10 }}>
                     Add Image
                   </Text>
                 </View>
@@ -327,41 +344,41 @@ const Profile = ({ navigation }) => {
             </Pressable>
             <View>
               <View
-                style={{ flexDirection: 'row', justifyContent: 'space-around' }}
+                style={{ flexDirection: "row", justifyContent: "space-around" }}
               >
-                <Text style={{ fontWeight: 'bold' }}>
+                <Text style={{ fontWeight: "bold" }}>
                   {beginTime.toLocaleTimeString()}
                 </Text>
-                <Text style={{ fontWeight: 'bold' }}>
+                <Text style={{ fontWeight: "bold" }}>
                   {endTime.toLocaleTimeString()}
                 </Text>
               </View>
               <View
                 style={{
-                  justifyContent: 'space-between',
-                  flexDirection: 'row',
+                  justifyContent: "space-between",
+                  flexDirection: "row",
                 }}
               >
-                <Button onPress={showBeginPicker} title='Active time start' />
-                <Button onPress={showEndPicker} title='Active time end' />
+                <Button onPress={showBeginPicker} title="Active time start" />
+                <Button onPress={showEndPicker} title="Active time end" />
               </View>
               {beginShow && (
                 <DateTimePicker
-                  testID='dateTimePicker'
+                  testID="dateTimePicker"
                   value={beginTime}
                   mode={beginMode}
                   is24Hour={true}
-                  display='default'
+                  display="default"
                   onChange={onBeginChange}
                 />
               )}
               {endShow && (
                 <DateTimePicker
-                  testID='dateTimePicker'
+                  testID="dateTimePicker"
                   value={endTime}
                   mode={endMode}
                   is24Hour={true}
-                  display='default'
+                  display="default"
                   onChange={onEndChange}
                 />
               )}
@@ -369,17 +386,17 @@ const Profile = ({ navigation }) => {
             {showMessage && (
               <View style={styles.message}>
                 <Text>Value : {value}</Text>
-                <Text>Valid : {valid ? 'true' : 'false'}</Text>
+                <Text>Valid : {valid ? "true" : "false"}</Text>
               </View>
             )}
             <PhoneInput
               ref={phoneInput}
               defaultValue={value}
-              layout='second'
+              layout="second"
               containerStyle={{
-                width: '100%',
+                width: "100%",
                 backgroundColor: colors.white,
-                shadowColor: '#000',
+                shadowColor: "#000",
                 shadowOffset: {
                   width: 0,
                   height: 1,
@@ -392,7 +409,7 @@ const Profile = ({ navigation }) => {
               textContainerStyle={{ backgroundColor: colors.white }}
               codeTextStyle={{ color: colors.grey }}
               disableArrowIcon
-              defaultCode='BD'
+              defaultCode="BD"
               onChangeFormattedText={(text) => {
                 setValue(text);
                 const checkValid = phoneInput.current?.isValidNumber(value);
@@ -428,11 +445,9 @@ const Profile = ({ navigation }) => {
           </View>
           <View style={styles.container}>
             <MapView
-              provider='google'
               region={region}
               zoomEnabled={true}
               showsUserLocation={true}
-              provider='google'
               style={styles.map}
             >
               <Marker
@@ -454,12 +469,19 @@ const Profile = ({ navigation }) => {
                   <Text>Current Location</Text>
                 </Callout>
               </Marker>
+              <MapViewDirections
+                origin={region}
+                apikey="" //maps direction api key here
+                destination={coordinates[1]}
+                strokeWidth={3}
+                strokeColor="red"
+              />
             </MapView>
           </View>
           <Button
-            disabled={!(valid)}
+            disabled={!valid}
             onPress={formik.handleSubmit}
-            title='Create'
+            title="Create"
           />
         </ScrollView>
       )}
@@ -472,10 +494,10 @@ export default Profile;
 const styles = StyleSheet.create({
   container: {
     height: 200,
-    width: '100%',
+    width: "100%",
   },
   map: {
-    width: '100%',
+    width: "100%",
     height: 200,
   },
 });
