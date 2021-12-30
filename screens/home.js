@@ -18,9 +18,9 @@ const Home = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
     if (user.uid == "MUjeAeY5cab9N8slLYbJZbIvDxs1") {
-      //pending users
+      setLoading(true);
+      // pending users
       userRef.where("userStatus", "==", "pending").onSnapshot((snapshot) => {
         const users = [];
         snapshot.forEach((doc) => {
@@ -30,13 +30,14 @@ const Home = ({ navigation }) => {
       });
       setLoading(false);
     } else {
+      setLoading(true);
       userRef.doc(user.uid).onSnapshot((snapshot) => {
         const user = [];
         user.push(snapshot.data());
         setUserInfo(user);
       });
 
-      //approved users
+      // user posts
       postRef.onSnapshot((snapshot) => {
         const userPosts = [];
         snapshot.forEach((doc) => {
@@ -327,94 +328,87 @@ const Home = ({ navigation }) => {
         post={user.uid == "MUjeAeY5cab9N8slLYbJZbIvDxs1" ? false : true}
         onPress={() => checkApproved()}
       />
-      <>
-        {user.uid == "MUjeAeY5cab9N8slLYbJZbIvDxs1" ? (
-          <>
-            {loading ? (
-              <Loading />
-            ) : (
-              <FlatList
-                showsHorizontalScrollIndicator={false}
-                data={userInfo}
-                renderItem={renderUsers}
-                keyExtractor={(item) => item.userId}
-                key={(item) => item.userId}
-              />
-            )}
-          </>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {loading ? (
+          <Loading />
         ) : (
           <>
-            {postInfo.length === 0 ? (
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                {userInfo.map((item) => item.userStatus) == "Approved" ? (
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontWeight: "bold",
-                        textAlign: "center",
-                        color: colors.green,
-                      }}
-                    >
-                      {`Congrats! your account has been approved! \n You can now create posts`}
-                    </Text>
-
-                    <LottieView
-                      style={{
-                        height: 200,
-                      }}
-                      source={require("../assets/approved.json")}
-                      autoPlay={true}
-                    />
-                  </View>
-                ) : (
-                  <>
-                    <View>
-                      <Text style={{ fontWeight: "bold" }}>
-                        Your account is under approval process
-                      </Text>
-                      <Image
-                        source={require("../assets/empty.png")}
-                        style={{
-                          width: "100%",
-                          height: 250,
-                          marginTop: 20,
-                          resizeMode: "contain",
-                        }}
-                      />
-                    </View>
-                  </>
-                )}
-              </View>
-            ) : (
+            {user.uid == "MUjeAeY5cab9N8slLYbJZbIvDxs1" ? (
               <>
-                {loading ? (
-                  <Loading />
+                {userInfo.length == 0 ? (
+                  <Text>no user here</Text>
                 ) : (
                   <FlatList
                     showsHorizontalScrollIndicator={false}
-                    data={postInfo}
-                    renderItem={renderPosts}
+                    data={userInfo}
+                    renderItem={renderUsers}
                     keyExtractor={(item) => item.userId}
                     key={(item) => item.userId}
                   />
                 )}
               </>
+            ) : (
+              <>
+                {userInfo.length == 0 ? (
+                  <Text>No posts</Text>
+                ) : (
+                  <>
+                    {userInfo.map((user) => user.userStatus) != "Approved" ? (
+                      <View>
+                        <Text style={{ fontWeight: "bold" }}>
+                          Your account is under approval process
+                        </Text>
+                        <Image
+                          source={require("../assets/empty.png")}
+                          style={{
+                            width: "100%",
+                            height: 250,
+                            marginTop: 20,
+                            resizeMode: "contain",
+                          }}
+                        />
+                      </View>
+                    ) : (
+                      <>
+                        {postInfo.length == 0 ? (
+                          <View>
+                            <Text style={{ fontWeight: "bold" }}>
+                              Account approved, go ahead and create some requests
+                            </Text>
+                            <Image
+                              source={require('../assets/empty.png')}
+                              style={{
+                                width: "100%",
+                                height: 250,
+                                marginTop: 20,
+                                resizeMode: "contain",
+                              }}
+                            />
+                          </View>
+                        ) : (
+                          <FlatList
+                            showsHorizontalScrollIndicator={false}
+                            data={postInfo}
+                            renderItem={renderPosts}
+                            keyExtractor={(item) => item.userId}
+                            key={(item) => item.userId}
+                          />
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+              </>
             )}
           </>
         )}
-      </>
+      </View>
     </SafeAreaView>
   );
 };

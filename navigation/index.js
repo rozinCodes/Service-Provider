@@ -54,15 +54,15 @@ const Navigation = () => {
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <LottieView
-        style={{
-          height: 200,
-          width: 100,
-        }}
-        source={require("../assets/loading.json")}
-        autoPlay={true}
-      />
-    </View>
+        <LottieView
+          style={{
+            height: 200,
+            width: 100,
+          }}
+          source={require("../assets/loading.json")}
+          autoPlay={true}
+        />
+      </View>
     );
   }
 
@@ -119,8 +119,9 @@ function BottomTabNavigator() {
               />
             ),
           }}
-        />): (
-          <Tab.Screen
+        />
+      ) : (
+        <Tab.Screen
           name="ChatScreen"
           component={ChatScreen}
           options={{
@@ -134,7 +135,7 @@ function BottomTabNavigator() {
             ),
           }}
         />
-        )}
+      )}
 
       <Tab.Screen
         name="Settings"

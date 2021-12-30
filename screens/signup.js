@@ -119,7 +119,6 @@ const SignUp = () => {
             creationTime: Date(),
             email: response.user.email,
             userStatus: "pending",
-            expoPushToken,
           };
           userRef
             .doc(response.user.uid)
