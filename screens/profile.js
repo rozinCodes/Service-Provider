@@ -5,6 +5,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { useFormik } from "formik";
+import { getPreciseDistance } from "geolib";
 import LottieView from "lottie-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -14,18 +15,19 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import MapView, { Callout, Marker } from "react-native-maps";
+import MapViewDirections from "react-native-maps-directions";
 import PhoneInput from "react-native-phone-number-input";
 import { SafeAreaView } from "react-native-safe-area-context";
 import uuid from "react-native-uuid";
 import * as Yup from "yup";
+import MAP_DIRECTIONS_API from "../api_key";
 import Button from "../components/button";
 import { firebase } from "../components/configuration/config";
 import { Header } from "../components/header";
 import { colors } from "../presets";
-import MapViewDirections from "react-native-maps-directions";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -95,7 +97,7 @@ const Profile = ({ navigation }) => {
   const user = firebase.auth().currentUser;
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [image, setImage] = useState(null);
   const [region, setRegion] = useState({
     latitude: 0,
@@ -176,6 +178,7 @@ const Profile = ({ navigation }) => {
             title: "user.displayName",
             body: "your post has been published successfully",
           };
+          navigation.navigate("Home");
 
           await fetch("https://exp.host/--/api/v2/push/send", {
             method: "POST",
@@ -191,7 +194,6 @@ const Profile = ({ navigation }) => {
             message: "your post has been created successfully",
             type: "success",
           });
-          navigation.navigate("Home");
         })
         .catch((err) => {
           showMessage({
@@ -236,7 +238,6 @@ const Profile = ({ navigation }) => {
   };
 
   useEffect(() => {
-    setLoading(true);
     registerForPushNotificationsAsync().then((token) =>
       setExpoPushToken(token)
     );
@@ -266,6 +267,10 @@ const Profile = ({ navigation }) => {
         longitudeDelta: 0.00421,
       });
       setLoading(false);
+
+      // console.warn(
+      //   `distance is ${getPreciseDistance(region, coordinates[1])} metres`
+      // );
     })();
     return () => {
       Notifications.removeNotificationSubscription(
@@ -293,7 +298,7 @@ const Profile = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={{ marginBottom: 60 }}>
+    <SafeAreaView style={{ marginBottom: 60, flex: 1 }}>
       <Header title="Post" backButton />
       {loading ? (
         <Loading />
@@ -471,7 +476,7 @@ const Profile = ({ navigation }) => {
               </Marker>
               <MapViewDirections
                 origin={region}
-                apikey="AIzaSyABDwmxnfO54hBn4EvWe1Ta8aGltai1aEk"
+                apikey={MAP_DIRECTIONS_API}
                 destination={coordinates[1]}
                 strokeWidth={3}
                 strokeColor="red"

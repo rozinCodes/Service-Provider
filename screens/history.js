@@ -1,15 +1,12 @@
 import LottieView from "lottie-react-native";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   Image,
   ScrollView,
   Text,
-  View,
+  View
 } from "react-native";
-import { showMessage } from "react-native-flash-message";
-import { Button } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { firebase } from "../components/configuration/config";
 import { colors } from "../presets";
@@ -18,19 +15,18 @@ const History = () => {
   const userRef = firebase.firestore().collection("users");
 
   let [userInfo, setUserInfo] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    userRef.where("userStatus", "!=", "pending")
-    .onSnapshot((snapshot) => {
-        const users = [];
-        snapshot.forEach((doc) => {
-          users.push(doc.data());
-        });
-        setUserInfo(users);
-        setLoading(false);
-      })
+    userRef.where("userStatus", "!=", "pending").onSnapshot((snapshot) => {
+      const users = [];
+      snapshot.forEach((doc) => {
+        users.push(doc.data());
+      });
+      setUserInfo(users);
+      setLoading(false);
+    });
   }, []);
 
   const renderItem = ({ item }) => {

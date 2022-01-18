@@ -15,11 +15,10 @@ const Home = ({ navigation }) => {
 
   let [userInfo, setUserInfo] = useState([]);
   let [postInfo, setPostInfo] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user.uid == "MUjeAeY5cab9N8slLYbJZbIvDxs1") {
-      setLoading(true);
       // pending users
       userRef.where("userStatus", "==", "pending").onSnapshot((snapshot) => {
         const users = [];
@@ -27,10 +26,9 @@ const Home = ({ navigation }) => {
           users.push(doc.data());
         });
         setUserInfo(users);
+        setLoading(false);
       });
-      setLoading(false);
     } else {
-      setLoading(true);
       userRef.doc(user.uid).onSnapshot((snapshot) => {
         const user = [];
         user.push(snapshot.data());
@@ -44,8 +42,8 @@ const Home = ({ navigation }) => {
           userPosts.push(doc.data());
         });
         setPostInfo(userPosts);
+        setLoading(false);
       });
-      setLoading(false);
     }
   }, []);
 
@@ -66,13 +64,13 @@ const Home = ({ navigation }) => {
   };
 
   //called when admin approves the user
-  const userApproved = async (id) => {
+  const userApproved = (id) => {
     setLoading(true);
     let data = {
       userStatus: "Approved",
       approvalTime: Date(),
     };
-    await userRef
+    userRef
       .doc(id)
       .update(data)
       .then(() => {
@@ -95,12 +93,12 @@ const Home = ({ navigation }) => {
   };
 
   //called when admin rejects the user
-  const userRejected = async (id) => {
+  const userRejected = (id) => {
     let data = {
       userStatus: "Rejected",
       approvalTime: Date(),
     };
-    await userRef
+    userRef
       .doc(id)
       .update(data)
       .then(() => {
@@ -332,7 +330,6 @@ const Home = ({ navigation }) => {
         style={{
           flex: 1,
           justifyContent: "center",
-          alignItems: "center",
         }}
       >
         {loading ? (
@@ -342,7 +339,11 @@ const Home = ({ navigation }) => {
             {user.uid == "MUjeAeY5cab9N8slLYbJZbIvDxs1" ? (
               <>
                 {userInfo.length == 0 ? (
-                  <Text>no user here</Text>
+                  <View
+                    style={{ justifyContent: "center", alignItems: "center" }}
+                  >
+                    <Text>no user here</Text>
+                  </View>
                 ) : (
                   <FlatList
                     showsHorizontalScrollIndicator={false}
@@ -360,7 +361,7 @@ const Home = ({ navigation }) => {
                 ) : (
                   <>
                     {userInfo.map((user) => user.userStatus) != "Approved" ? (
-                      <View>
+                      <View style = {{justifyContent: 'center', alignItems: 'center'}}>
                         <Text style={{ fontWeight: "bold" }}>
                           Your account is under approval process
                         </Text>
@@ -377,20 +378,22 @@ const Home = ({ navigation }) => {
                     ) : (
                       <>
                         {postInfo.length == 0 ? (
-                          <View>
+                          <View style = {{justifyContent: 'center', alignItems: 'center'}}>
                             <Text style={{ fontWeight: "bold" }}>
-                              Account approved, go ahead and create some requests
+                              Account approved, go ahead and create some
+                              requests
                             </Text>
-                            <Image
-                              source={require('../assets/empty.png')}
-                              style={{
-                                width: "100%",
-                                height: 250,
-                                marginTop: 20,
-                                resizeMode: "contain",
-                              }}
-                            />
-                          </View>
+
+                              <LottieView
+                                style={{
+                                  height: 200,
+                                  width: 100,
+                                }}
+                                source={require("../assets/approved.json")}
+                                autoPlay={true}
+                                loop={true}
+                              />
+                            </View>
                         ) : (
                           <FlatList
                             showsHorizontalScrollIndicator={false}
