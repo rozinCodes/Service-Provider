@@ -476,11 +476,7 @@ const Profile = ({ navigation }) => {
               </Marker>
               <MapViewDirections
                 origin={region}
-<<<<<<< HEAD
                 apikey={MAP_DIRECTIONS_API}
-=======
-                apikey=""
->>>>>>> cdf80109cfaaac4c587e7a6ecba474091267e5b4
                 destination={coordinates[1]}
                 strokeWidth={3}
                 strokeColor="red"
